@@ -46,7 +46,7 @@ export default function ContactPage() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.5 }}
       >
-        Have questions or feedback? We'd love to hear from you!
+        {`Have questions or feedback? We'd love to hear from you!`}
       </motion.p>
 
       {sent && (
