@@ -1,66 +1,52 @@
-"use client";
+'use client'; // Needed for client-side interactivity
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { FaShoppingCart } from "react-icons/fa";
-import { useCart } from "@/app/context/CartContext";
-import ThemeToggle from "./ThemeToggle";
+import Link from 'next/link';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
-export default function Navbar() {
-  const { cart } = useCart();
-  const [mounted, setMounted] = useState(false);
+const Navbar = () => {
+  const [darkMode, setDarkMode] = useState(false);
 
-  // Detect system theme on first visit and apply it
+  // Toggle dark mode class on <html> tag
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedTheme = localStorage.getItem("theme");
-
-      if (!savedTheme) {
-        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        document.documentElement.classList.toggle("dark", prefersDark);
-        localStorage.setItem("theme", prefersDark ? "dark" : "light");
-      } else {
-        document.documentElement.classList.toggle("dark", savedTheme === "dark");
-      }
-
-      setMounted(true); // Ensure theme loads before hydration
+    const root = window.document.documentElement;
+    if (darkMode) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
     }
-  }, []);
-
-  if (!mounted) return null; // Prevent mismatch on hydration
+  }, [darkMode]);
 
   return (
-    <nav className="bg-white dark:bg-gray-900 shadow p-4 sticky top-0 z-50">
-      <div className="container mx-auto flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold text-gray-800 dark:text-white">
-          BharatGaurav Store
-        </Link>
+    <header className="bg-white dark:bg-gray-900 shadow-sm fixed top-0 left-0 w-full z-50 transition-colors">
+      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
-        <div className="flex items-center space-x-6">
-          <Link href="/products" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400">
-            Products
-          </Link>
-          <Link href="/about" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400">
-            About
-          </Link>
-          <Link href="/contact" className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400">
-            Contact
-          </Link>
+        {/* Logo */}
+        <div className="flex items-center space-x-2">
+          <span className="text-xl font-bold text-[#FF5A5F]">Nike</span>
+        </div>
 
-          {/* Cart Icon with Badge */}
-          <Link href="/cart" className="relative">
-            <FaShoppingCart className="w-5 h-5 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400" />
-            {cart.length > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-semibold w-4 h-4 flex items-center justify-center rounded-full">
-                {cart.length}
-              </span>
-            )}
-          </Link>
+        {/* Navigation Links */}
+        <nav className="hidden md:flex items-center space-x-10 font-medium text-gray-700 dark:text-gray-200">
+          <Link href="/" className="hover:text-red-500 transition">Home</Link>
+          <Link href="/about" className="hover:text-red-500 transition">About Us</Link>
+          <Link href="/products" className="hover:text-red-500 transition">Products</Link>
+          <Link href="/contact" className="hover:text-red-500 transition">Contact Us</Link>
+        </nav>
 
-          {/* Theme Toggle */}
-          <ThemeToggle />
+        {/* Sign In + Dark Mode Toggle */}
+        <div className="flex items-center space-x-3 text-sm font-medium text-gray-800 dark:text-gray-200">
+          <Link href="/signin" className="hover:text-red-500 transition">Sign in</Link>
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className="ml-2 px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+          >
+            {darkMode ? 'Light Mode' : 'Dark Mode'}
+          </button>
         </div>
       </div>
-    </nav>
+    </header>
   );
-}
+};
+
+export default Navbar;
