@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 const shoes = [
-  '/assets/big-shoe1.png',
-  '/assets/big-shoe2.png',
-  '/assets/big-shoe3.png',
+  '/assets/big-shoe1.jpg',
+  '/assets/big-shoe2.jpg',
+  '/assets/big-shoe3.jpg',
 ];
 
 const Hero = () => {
@@ -17,11 +17,11 @@ const Hero = () => {
     <section className="w-full flex flex-col lg:flex-row justify-between items-center px-8 md:px-20 pt-20 pb-16">
       {/* Left */}
       <div className="w-full lg:w-1/2 space-y-8 text-center lg:text-left">
-        <p className="text-base md:text-lg text-rose-400 font-medium">Our Summer collections</p>
+        <p className="text-base md:text-lg text-[#ff6740] font-medium">Our Summer collections</p>
 
         <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
           The New Arrival <br />
-          <span className="text-rose-500">Nike</span> Shoes
+          <span className="text-[#ff6740]">Nike</span> Shoes
         </h1>
 
         <p className="text-lg md:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0">
@@ -30,7 +30,7 @@ const Hero = () => {
 
         <Link
           href="/products"
-          className="inline-block bg-rose-500 hover:bg-rose-600 text-white text-lg font-semibold px-8 py-4 rounded-full transition"
+          className="inline-block bg-[#ff6740] hover:bg-rose-600 text-white text-lg font-semibold px-8 py-4 rounded-full transition"
         >
           Shop now →
         </Link>
