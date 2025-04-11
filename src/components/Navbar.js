@@ -23,7 +23,7 @@ const Navbar = () => {
 
         {/* Logo */}
         <div className="flex items-center space-x-2">
-          <span className="text-xl font-bold text-[#ff6740]">Nike</span>
+          <span className="text-xl font-bold text-[#ff6740]">BHARATGAURAV</span>
         </div>
 
         {/* Navigation Links */}

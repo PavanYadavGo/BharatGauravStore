@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useCart } from "@/app/context/CartContext";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/helpers/firebaseConfig";
 import Image from "next/image";
@@ -9,6 +9,7 @@ import { FaShoppingCart } from "react-icons/fa";
 
 export default function ProductDetails() {
   const { id } = useParams();
+  const router = useRouter();
   const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState("");
@@ -37,6 +38,12 @@ export default function ProductDetails() {
     fetchProduct();
   }, [id]);
 
+  const handleBuyNow = () => {
+    if (product?.id) {
+      router.push(`/checkout?productId=${product.id}`);
+    }
+  };
+
   if (!product) {
     return (
       <p className="text-center text-red-500 font-semibold text-lg mt-10">
@@ -50,7 +57,6 @@ export default function ProductDetails() {
       <section className="flex flex-col lg:flex-row items-center justify-center bg-white dark:bg-gray-800 p-10 rounded-lg shadow-lg mx-auto max-w-6xl transition-colors duration-300">
         {/* 🔹 Left Section: Image Gallery */}
         <div className="w-full lg:w-1/2 flex flex-col items-center">
-          {/* ✅ Main Image Display */}
           <div className="w-[400px] h-[400px] bg-white dark:bg-gray-700 border rounded-lg shadow-md overflow-hidden">
             <Image
               src={selectedImage}
@@ -61,7 +67,6 @@ export default function ProductDetails() {
             />
           </div>
 
-          {/* ✅ Thumbnail Images */}
           {product.images && product.images.length > 1 && (
             <div className="flex gap-3 flex-wrap mt-4 justify-center">
               {product.images.map((img, index) => (
@@ -100,6 +105,14 @@ export default function ProductDetails() {
             className="mt-6 bg-green-600 text-white py-3 px-8 rounded-lg flex items-center gap-3 text-lg font-semibold hover:bg-green-700 transition duration-300 mx-auto lg:mx-0"
           >
             <FaShoppingCart className="text-xl" /> Add to Cart
+          </button>
+
+          {/* ✅ Buy Now Button */}
+          <button
+            onClick={handleBuyNow}
+            className="mt-4 bg-blue-600 text-white py-3 px-8 rounded-lg text-lg font-semibold hover:bg-blue-700 transition duration-300 mx-auto lg:mx-0 block"
+          >
+            ⚡ Buy Now
           </button>
         </div>
       </section>
