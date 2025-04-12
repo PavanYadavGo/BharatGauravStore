@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useCart } from "@/app/context/CartContext"; 
-import { getDocs, productsCollection } from "@/helpers/firebaseConfig"; 
+import { useCart } from "../context/CartContext"; 
+import { getDocs, productsCollection } from "../../helpers/firebaseConfig"; 
 import Image from "next/image";
 import Link from "next/link";
 import { FaShoppingCart, FaEye } from "react-icons/fa";

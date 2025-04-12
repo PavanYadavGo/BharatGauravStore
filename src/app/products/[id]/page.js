@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useCart } from "@/app/context/CartContext";
+import { useCart } from "../../context/CartContext";
 import { useParams, useRouter } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/helpers/firebaseConfig";
+import { db } from "../../../helpers/firebaseConfig";
 import Image from "next/image";
 import { FaShoppingCart } from "react-icons/fa";
 

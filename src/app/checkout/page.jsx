@@ -1,24 +1,20 @@
 "use client";
 
-export const dynamic = "force-dynamic"; // Fixes build-time prerender error
+export const dynamic = "force-dynamic";
 
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import {
-  doc,
-  getDoc,
-  collection,
-  addDoc,
-  serverTimestamp,
-} from "firebase/firestore";
-import { db } from "@/helpers/firebaseConfig";
+import { doc, getDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../../helpers/firebaseConfig";
+import { useAuth } from "../context/AuthContext";
 import Image from "next/image";
 import toast from "react-hot-toast";
 
-const CheckoutPageContent = () => {
+export default function CheckoutPage() {
   const searchParams = useSearchParams();
   const productId = searchParams.get("productId");
   const router = useRouter();
+  const { user } = useAuth();
 
   const [product, setProduct] = useState(null);
   const [buyerEmail, setBuyerEmail] = useState("");
@@ -28,32 +24,32 @@ const CheckoutPageContent = () => {
   const [zipCode, setZipCode] = useState("");
 
   useEffect(() => {
+    if (!user) {
+      toast.error("Please log in to access checkout.");
+      router.push("/login");
+    }
+  }, [user]);
+
+  useEffect(() => {
     const fetchProduct = async () => {
       if (!productId) return;
       const productRef = doc(db, "products", productId);
       const productSnap = await getDoc(productRef);
       if (productSnap.exists()) {
         setProduct({ id: productSnap.id, ...productSnap.data() });
+        if (user?.email) setBuyerEmail(user.email);
       }
     };
-    fetchProduct();
-  }, [productId]);
+    if (user) fetchProduct();
+  }, [productId, user]);
 
   const handleConfirmPurchase = async () => {
-    if (
-      !buyerEmail ||
-      !product ||
-      !buyerName ||
-      !contactNumber ||
-      !address ||
-      !zipCode
-    ) {
+    if (!buyerEmail || !product || !buyerName || !contactNumber || !address || !zipCode) {
       return toast.error("Please fill all fields!");
     }
 
     try {
-      const productImage =
-        product.images?.[0] || product.mainImage || product.imageUrl || "";
+      const productImage = product.images?.[0] || product.mainImage || product.imageUrl || "";
 
       await addDoc(collection(db, "orders"), {
         productId: product.id,
@@ -76,9 +72,9 @@ const CheckoutPageContent = () => {
     }
   };
 
-  if (!product) {
+  if (!user || !product) {
     return (
-      <p className="text-center mt-10 text-gray-600">Loading product...</p>
+      <p className="text-center mt-10 text-gray-600">Loading checkout...</p>
     );
   }
 
@@ -101,9 +97,7 @@ const CheckoutPageContent = () => {
         />
         <div>
           <p className="text-xl font-semibold">{product.name}</p>
-          <p className="text-green-600 text-lg font-medium">
-            ₹{product.price}
-          </p>
+          <p className="text-green-600 text-lg font-medium">₹{product.price}</p>
         </div>
       </div>
 
@@ -124,9 +118,9 @@ const CheckoutPageContent = () => {
           <input
             type="email"
             value={buyerEmail}
-            onChange={(e) => setBuyerEmail(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded"
-            placeholder="Enter your email"
+            disabled
+            className="w-full p-3 border border-gray-300 rounded bg-gray-100"
+            placeholder="Your email"
           />
         </div>
 
@@ -172,15 +166,4 @@ const CheckoutPageContent = () => {
       </button>
     </div>
   );
-};
-
-// ✅ Wrap the content with Suspense and export
-const CheckoutPage = () => {
-  return (
-    <Suspense fallback={<p className="text-center mt-10 text-gray-500">Loading checkout...</p>}>
-      <CheckoutPageContent />
-    </Suspense>
-  );
-};
-
-export default CheckoutPage;
+}

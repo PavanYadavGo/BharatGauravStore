@@ -21,11 +21,11 @@ const Hero = () => {
 
         <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
           The New Arrival <br />
-          <span className="text-[#ff6740]">Nike</span> Shoes
+          <span className="text-[#ff6740]">BHARATGAURAV</span> Clips
         </h1>
 
         <p className="text-lg md:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0">
-          Discover stylish Nike arrivals, quality comfort, and innovation for your active life.
+          Discover stylish<span className="text-[#ff6740]"> BHARATGAURAV</span> arrivals, quality comfort, and innovation for your active life.
         </p>
 
         <Link

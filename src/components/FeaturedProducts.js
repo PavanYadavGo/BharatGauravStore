@@ -2,8 +2,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { getDocs, productsCollection } from "@/helpers/firebaseConfig";
-import { useCart } from "@/app/context/CartContext";
+import { getDocs, productsCollection } from "../helpers/firebaseConfig";
+import { useCart } from "../app/context/CartContext";
 import { FaStar, FaShoppingCart, FaEye, FaRupeeSign } from "react-icons/fa";
 
 export default function FeaturedProducts() {

@@ -1,7 +1,6 @@
-import HeroSection from "@/components/HeroSection";
-import FeaturedProducts from "@/components/FeaturedProducts";
-import SuperShoesSection from "@/components/SuperShoesSection";
-import BentoGridSection from "@/components/BentoGridSection";
+import HeroSection from "../components/HeroSection";
+import FeaturedProducts from "../components/FeaturedProducts";
+import SuperShoesSection from "../components/SuperShoesSection";
 
 export default function Home() {
   return (
@@ -9,7 +8,6 @@ export default function Home() {
       <HeroSection />
       <FeaturedProducts />
       <SuperShoesSection/>
-      <BentoGridSection/>
     </>
   );
 }

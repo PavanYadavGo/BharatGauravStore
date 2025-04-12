@@ -9,10 +9,10 @@ const SuperShoesSection = () => {
         {/* Left Text */}
         <div className="max-w-xl space-y-5">
           <h2 className="text-4xl font-bold text-gray-900 dark:text-white">
-            We Provide You Super <br /> Quality Shoes
+            We Provide You Super <br /> Quality Clips
           </h2>
           <p className="text-gray-600 dark:text-gray-300">
-            Ensuring premium comfort and style, our meticulously crafted footwear is designed
+            Ensuring premium comfort and style, our meticulously crafted accesories is designed
             to elevate your experience, providing you with unmatched quality, innovation, and
             a touch of elegance.
           </p>
