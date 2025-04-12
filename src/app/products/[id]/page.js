@@ -112,7 +112,7 @@ export default function ProductDetails() {
             onClick={handleBuyNow}
             className="mt-4 bg-blue-600 text-white py-3 px-8 rounded-lg text-lg font-semibold hover:bg-blue-700 transition duration-300 mx-auto lg:mx-0 block"
           >
-            ⚡ Buy Now
+            Purchase
           </button>
         </div>
       </section>
