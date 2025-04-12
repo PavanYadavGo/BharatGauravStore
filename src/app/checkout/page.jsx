@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic"; // Fixes build-time prerender error
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   doc,
@@ -15,7 +15,7 @@ import { db } from "@/helpers/firebaseConfig";
 import Image from "next/image";
 import toast from "react-hot-toast";
 
-const CheckoutPage = () => {
+const CheckoutPageContent = () => {
   const searchParams = useSearchParams();
   const productId = searchParams.get("productId");
   const router = useRouter();
@@ -171,6 +171,15 @@ const CheckoutPage = () => {
         ✅ Confirm Purchase
       </button>
     </div>
+  );
+};
+
+// ✅ Wrap the content with Suspense and export
+const CheckoutPage = () => {
+  return (
+    <Suspense fallback={<p className="text-center mt-10 text-gray-500">Loading checkout...</p>}>
+      <CheckoutPageContent />
+    </Suspense>
   );
 };
 
