@@ -1,4 +1,7 @@
 "use client";
+
+export const dynamic = "force-dynamic"; // Fixes build-time prerender error
+
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
@@ -37,7 +40,14 @@ const CheckoutPage = () => {
   }, [productId]);
 
   const handleConfirmPurchase = async () => {
-    if (!buyerEmail || !product || !buyerName || !contactNumber || !address || !zipCode) {
+    if (
+      !buyerEmail ||
+      !product ||
+      !buyerName ||
+      !contactNumber ||
+      !address ||
+      !zipCode
+    ) {
       return toast.error("Please fill all fields!");
     }
 
