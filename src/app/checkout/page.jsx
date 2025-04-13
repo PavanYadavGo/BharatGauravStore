@@ -1,7 +1,5 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { doc, getDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
@@ -10,7 +8,7 @@ import { useAuth } from "../context/AuthContext";
 import Image from "next/image";
 import toast from "react-hot-toast";
 
-export default function CheckoutPage() {
+export default function ClientCheckout() {
   const searchParams = useSearchParams();
   const productId = searchParams.get("productId");
   const router = useRouter();
