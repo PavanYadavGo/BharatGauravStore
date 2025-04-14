@@ -164,7 +164,7 @@ export default function CheckoutPage() {
 
       <button
         onClick={handleConfirmPurchase}
-        className="mt-6 w-full bg-blue-600 text-white py-3 px-6 rounded font-semibold hover:bg-blue-700 transition"
+        className="mt-6 w-full bg-[#ff6740] text-white py-3 px-6 rounded font-semibold hover:bg-orange-600 transition"
       >
         ✅ Confirm Purchase
       </button>
