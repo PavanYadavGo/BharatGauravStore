@@ -1,9 +1,10 @@
 // app/layout.jsx
-import "../styles/globals.css"
+import "../styles/globals.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
+import { Toaster } from "react-hot-toast";
 
 export const metadata = {
   title: "Bharat Gaurav Store",
@@ -19,6 +20,7 @@ export default function RootLayout({ children }) {
             <Navbar />
             <main className="flex-1">{children}</main>
             <Footer />
+            <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
           </CartProvider>
         </AuthProvider>
       </body>

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useCart } from '../app/context/CartContext';
 import { useAuth } from '../app/context/AuthContext';
 import { FaShoppingCart } from 'react-icons/fa';
@@ -13,19 +13,43 @@ const Navbar = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [showCart, setShowCart] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-  const { cart } = useCart();
+  const { cart, removeFromCart, increaseQuantity, decreaseQuantity, getTotalPrice } = useCart();
   const { user, logout } = useAuth();
   const router = useRouter();
+
+  const cartRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const root = window.document.documentElement;
     darkMode ? root.classList.add('dark') : root.classList.remove('dark');
   }, [darkMode]);
 
+  // Handle click outside cart or dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (cartRef.current && !cartRef.current.contains(event.target)) {
+        setShowCart(false);
+      }
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleLogout = async () => {
     await logout();
     setShowDropdown(false);
     router.push('/');
+  };
+
+  const handleBuyNow = () => {
+    if (cart.length > 0 && cart[0]?.id) {
+      router.push(`/checkout?productId=${cart[0].id}`);
+    }
   };
 
   return (
@@ -43,7 +67,7 @@ const Navbar = () => {
         </nav>
 
         <div className="flex items-center space-x-4 text-sm font-medium text-gray-800 dark:text-gray-200 relative">
-          <div className="relative">
+          <div className="relative" ref={cartRef}>
             <button onClick={() => setShowCart(!showCart)} className="relative">
               <FaShoppingCart size={20} />
               {cart.length > 0 && (
@@ -63,23 +87,39 @@ const Navbar = () => {
                     {cart.map((item, index) => (
                       <li key={index} className="flex items-center gap-3 border-b pb-2">
                         <img
-                          src={item.image || item.images?.[0] || '/placeholder.jpg'}
+                          src={item.images?.[0] || '/placeholder.jpg'}
                           alt={item.name}
                           className="w-12 h-12 object-cover rounded"
                         />
                         <div className="flex-1">
-                          <p className="text-sm font-medium truncate w-40">{item.name}</p>
-                          <p className="text-xs text-green-600 font-semibold">₹{item.price}</p>
+                          <p className="text-sm font-medium truncate w-36">{item.name}</p>
+                          <p className="text-xs text-green-600">₹{item.price} × {item.quantity}</p>
+                          <div className="flex gap-2 mt-1">
+                            <button onClick={() => decreaseQuantity(item.id)} className="px-2 bg-gray-200 text-sm">-</button>
+                            <button onClick={() => increaseQuantity(item.id)} className="px-2 bg-gray-200 text-sm">+</button>
+                            <button onClick={() => removeFromCart(item.id)} className="text-red-500 text-xs">Remove</button>
+                          </div>
                         </div>
                       </li>
                     ))}
                   </ul>
                 )}
-                <Link href="/cart">
-                  <button className="mt-4 w-full bg-[#ff6740] text-white text-sm py-2 rounded hover:bg-orange-600">
-                    Go to Cart
+                <p className="mt-3 text-sm font-bold text-right text-green-600">
+                  Total: ₹{getTotalPrice()}
+                </p>
+                <div className="mt-3 space-y-2">
+                  <Link href="/cart">
+                    <button className="w-full bg-gray-600 text-white text-sm py-2 rounded hover:bg-gray-700">
+                      Go to Cart
+                    </button>
+                  </Link>
+                  <button
+                    onClick={handleBuyNow}
+                    className="w-full bg-[#ff6740] text-white text-sm py-2 rounded hover:bg-orange-600"
+                  >
+                    Purchase
                   </button>
-                </Link>
+                </div>
               </div>
             )}
           </div>
@@ -90,7 +130,7 @@ const Navbar = () => {
               <Link href="/login" className="hover:text-red-500">Login</Link>
             </>
           ) : (
-            <div className="relative">
+            <div className="relative" ref={dropdownRef}>
               <button onClick={() => setShowDropdown(!showDropdown)} className="flex items-center gap-2">
                 {user.photoURL ? (
                   <Image src={user.photoURL} alt="User" width={32} height={32} className="rounded-full" />
@@ -100,7 +140,7 @@ const Navbar = () => {
                   </div>
                 )}
                 <span className="max-w-[140px] truncate">
-                {user?.username || 'User'}
+                  {user?.username || 'User'}
                 </span>
               </button>
               {showDropdown && (

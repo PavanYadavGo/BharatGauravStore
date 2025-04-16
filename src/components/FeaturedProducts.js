@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { getDocs, productsCollection } from "../helpers/firebaseConfig";
 import { useCart } from "../app/context/CartContext";
 import { FaStar, FaShoppingCart, FaEye, FaRupeeSign } from "react-icons/fa";
+import toast from "react-hot-toast"; // ✅ Import toast
 
 export default function FeaturedProducts() {
   const { addToCart } = useCart();
@@ -79,7 +80,10 @@ export default function FeaturedProducts() {
                   <FaEye /> View
                 </Link>
                 <button
-                  onClick={() => addToCart(product)}
+                  onClick={() => {
+                    addToCart(product);
+                    toast.success(`${product.name} added to cart`);
+                  }}
                   className="flex-1 bg-green-600 text-white py-2 px-3 rounded-md flex justify-center items-center gap-2 hover:bg-green-700 transition"
                 >
                   <FaShoppingCart /> Add
