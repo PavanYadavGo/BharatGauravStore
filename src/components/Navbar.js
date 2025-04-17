@@ -108,11 +108,6 @@ const Navbar = () => {
                   Total: ₹{getTotalPrice()}
                 </p>
                 <div className="mt-3 space-y-2">
-                  <Link href="/cart">
-                    <button className="w-full bg-gray-600 text-white text-sm py-2 rounded hover:bg-gray-700">
-                      Go to Cart
-                    </button>
-                  </Link>
                   <button
                     onClick={handleBuyNow}
                     className="w-full bg-[#ff6740] text-white text-sm py-2 rounded hover:bg-orange-600"

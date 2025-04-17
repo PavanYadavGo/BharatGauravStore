@@ -7,8 +7,10 @@ export default function OrderSuccess() {
   const { clearCart } = useCart();
 
   useEffect(() => {
-    clearCart(); // Clear cart on page load
-  }, [clearCart]);
+    // Clear cart only once on first render
+    clearCart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // ✅ Empty dependency array prevents re-runs
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-green-50">

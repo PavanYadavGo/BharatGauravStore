@@ -9,6 +9,7 @@ import { FaShoppingCart, FaEye } from "react-icons/fa";
 export default function Products() {
   const { addToCart } = useCart();
   const [products, setProducts] = useState([]);
+  const [animating, setAnimating] = useState({}); // 👈 for tracking animation state
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -27,6 +28,18 @@ export default function Products() {
 
     fetchProducts();
   }, []);
+
+  const handleAddToCart = (product) => {
+    addToCart(product);
+
+    // Trigger animation
+    setAnimating((prev) => ({ ...prev, [product.id]: true }));
+
+    // Remove animation after 300ms
+    setTimeout(() => {
+      setAnimating((prev) => ({ ...prev, [product.id]: false }));
+    }, 300);
+  };
 
   return (
     <section className="py-16 bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
@@ -51,7 +64,6 @@ export default function Products() {
               </h3>
               <p className="text-blue-600 dark:text-blue-400 font-bold">₹{product.price}</p>
 
-              {/* Buttons */}
               <div className="mt-4 flex space-x-2 justify-center">
                 <Link
                   href={`/products/${product.id}`}
@@ -60,8 +72,10 @@ export default function Products() {
                   <FaEye /> View
                 </Link>
                 <button
-                  onClick={() => addToCart(product)}
-                  className="bg-green-600 text-white py-2 px-4 rounded flex items-center gap-2 hover:bg-green-700 transition"
+                  onClick={() => handleAddToCart(product)}
+                  className={`bg-green-600 text-white py-2 px-4 rounded flex items-center gap-2 transition transform duration-300 ${
+                    animating[product.id] ? "scale-110" : ""
+                  }`}
                 >
                   <FaShoppingCart /> Add
                 </button>

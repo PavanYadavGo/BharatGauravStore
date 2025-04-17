@@ -5,7 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../helpers/firebaseConfig";
 import Image from "next/image";
-import { FaShoppingCart } from "react-icons/fa";
+import { FaShoppingCart, FaCheckCircle } from "react-icons/fa";
+import toast from "react-hot-toast";
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -13,6 +14,7 @@ export default function ProductDetails() {
   const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState("");
+  const [animating, setAnimating] = useState({}); // Per-product animation state
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -42,6 +44,16 @@ export default function ProductDetails() {
     if (product?.id) {
       router.push(`/checkout?productId=${product.id}`);
     }
+  };
+
+  const handleAddToCart = (product) => {
+    addToCart(product);
+    toast.success(`${product.name} added to cart`);
+
+    setAnimating((prev) => ({ ...prev, [product.id]: true }));
+    setTimeout(() => {
+      setAnimating((prev) => ({ ...prev, [product.id]: false }));
+    }, 800);
   };
 
   if (!product) {
@@ -74,7 +86,9 @@ export default function ProductDetails() {
                   key={index}
                   onClick={() => setSelectedImage(img)}
                   className={`border-2 p-1 rounded-lg transition ${
-                    selectedImage === img ? "border-blue-500" : "border-gray-300 dark:border-gray-600"
+                    selectedImage === img
+                      ? "border-blue-500"
+                      : "border-gray-300 dark:border-gray-600"
                   }`}
                 >
                   <Image
@@ -99,12 +113,24 @@ export default function ProductDetails() {
             ₹{product.price}
           </p>
 
-          {/* ✅ Add to Cart Button */}
+          {/* ✅ Animated Add to Cart Button */}
           <button
-            onClick={() => addToCart(product)}
-            className="mt-6 bg-green-600 text-white py-3 px-8 rounded-lg flex items-center gap-3 text-lg font-semibold hover:bg-green-700 transition duration-300 mx-auto lg:mx-0"
+            onClick={() => handleAddToCart(product)}
+            className={`flex-1 py-3 px-8 rounded-lg flex justify-center items-center gap-2 transition-transform duration-300 mx-auto lg:mx-0 text-white 
+              ${animating[product.id]
+                ? "bg-emerald-600 scale-105"
+                : "bg-green-600 hover:bg-green-700"}
+            `}
           >
-            <FaShoppingCart className="text-xl" /> Add to Cart
+            {animating[product.id] ? (
+              <>
+                <FaCheckCircle className="text-white text-lg" /> Added
+              </>
+            ) : (
+              <>
+                <FaShoppingCart className="text-lg" /> Add to Cart
+              </>
+            )}
           </button>
 
           {/* ✅ Buy Now Button */}
