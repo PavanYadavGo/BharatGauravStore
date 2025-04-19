@@ -14,61 +14,64 @@ const Hero = () => {
   const [activeShoe, setActiveShoe] = useState(shoes[0]);
 
   return (
-    <section className="w-full flex flex-col lg:flex-row justify-between items-center px-8 md:px-20 pt-20 pb-16">
+    <section className="w-full flex flex-col lg:flex-row justify-between items-center px-6 md:px-16 lg:px-20 pt-16 pb-10 md:pt-20 md:pb-16">
       {/* Left */}
-      <div className="w-full lg:w-1/2 space-y-8 text-center lg:text-left">
-        <p className="text-base md:text-lg text-[#ff6740] font-medium">Our Summer collections</p>
+      <div className="w-full lg:w-1/2 space-y-6 md:space-y-8 text-center lg:text-left mb-10 lg:mb-0">
+        <p className="text-sm md:text-base lg:text-lg text-[#ff6740] font-medium uppercase">
+          Our Summer collections
+        </p>
 
-        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
-          The New Arrival <br />
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+          The New Arrival <br className="hidden lg:block" />
           <span className="text-[#ff6740]">BHARATGAURAV</span> Clips
         </h1>
 
-        <p className="text-lg md:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0">
-          Discover stylish<span className="text-[#ff6740]"> BHARATGAURAV</span> arrivals, quality comfort, and innovation for your active life.
+        <p className="text-base md:text-lg text-gray-600 max-w-md mx-auto lg:mx-0">
+          Discover stylish<span className="text-[#ff6740]"> BHARATGAURAV</span> arrivals, quality comfort, and
+          innovation for your active life.
         </p>
 
         <Link
           href="/products"
-          className="inline-block bg-[#ff6740] hover:bg-rose-600 text-white text-lg font-semibold px-8 py-4 rounded-full transition"
+          className="inline-block bg-[#ff6740] hover:bg-rose-600 text-white text-lg font-semibold px-6 py-3 rounded-full transition"
         >
           Shop now →
         </Link>
 
         {/* Stats */}
-        <div className="flex justify-center lg:justify-start gap-14 pt-8">
+        <div className="flex justify-center lg:justify-start gap-8 md:gap-14 pt-6 md:pt-8">
           <div>
-            <p className="text-2xl md:text-3xl font-bold">1k+</p>
-            <p className="text-gray-500 text-md">Brands</p>
+            <p className="text-xl md:text-2xl lg:text-3xl font-bold">1k+</p>
+            <p className="text-gray-500 text-sm md:text-md">Brands</p>
           </div>
           <div>
-            <p className="text-2xl md:text-3xl font-bold">500+</p>
-            <p className="text-gray-500 text-md">Shops</p>
+            <p className="text-xl md:text-2xl lg:text-3xl font-bold">500+</p>
+            <p className="text-gray-500 text-sm md:text-md">Shops</p>
           </div>
           <div>
-            <p className="text-2xl md:text-3xl font-bold">250k+</p>
-            <p className="text-gray-500 text-md">Customers</p>
+            <p className="text-xl md:text-2xl lg:text-3xl font-bold">250k+</p>
+            <p className="text-gray-500 text-sm md:text-md">Customers</p>
           </div>
         </div>
       </div>
 
       {/* Right */}
-      <div className="relative w-full lg:w-1/2 flex flex-col items-center justify-center bg-[#f5f6fa] rounded-bl-[100px] mt-14 lg:mt-0 pt-12 pb-16 px-6">
+      <div className="relative w-full lg:w-1/2 flex flex-col items-center justify-center bg-[#f5f6fa] rounded-bl-[50px] lg:rounded-bl-[100px] pt-8 pb-12 px-4 md:pt-12 md:pb-16 md:px-6">
         {/* Main Shoe Image */}
         <Image
           src={activeShoe}
           alt="Main Shoe"
-          width={480}
-          height={480}
+          width={380}
+          height={380}
           className="z-10 object-contain"
         />
 
         {/* Thumbnails */}
-        <div className="mt-8 flex gap-6">
+        <div className="mt-6 flex gap-4">
           {shoes.map((shoe, idx) => (
             <button
               key={idx}
-              className={`w-20 h-20 rounded-xl shadow-md bg-white p-3 transition-all ${
+              className={`w-16 h-16 md:w-20 md:h-20 rounded-xl shadow-md bg-white p-2 md:p-3 transition-all ${
                 activeShoe === shoe ? 'ring-2 ring-rose-400' : ''
               }`}
               onClick={() => setActiveShoe(shoe)}
@@ -76,8 +79,8 @@ const Hero = () => {
               <Image
                 src={shoe}
                 alt={`Shoe ${idx + 1}`}
-                width={64}
-                height={64}
+                width={48}
+                height={48}
                 className="object-contain"
               />
             </button>

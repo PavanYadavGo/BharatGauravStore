@@ -28,7 +28,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-, "src/app/checkout/page.jsx"  ],
+, "src/app/checkout/page.jsx", "src/app/products/[id]/page.tsx"  ],
   "exclude": [
     "node_modules"
   ]

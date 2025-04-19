@@ -18,9 +18,9 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <CartProvider>
             <Navbar />
-            <main className="flex-1">{children}</main>
+            <main className="flex-1 pt-20">{children}</main>
             <Footer />
-            <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+            <Toaster className="bg-green-500" position="top-center" toastOptions={{ duration: 3000 }} />
           </CartProvider>
         </AuthProvider>
       </body>
