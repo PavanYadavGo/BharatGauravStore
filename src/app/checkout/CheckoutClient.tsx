@@ -189,7 +189,7 @@ export default function CheckoutPage() {
 
             {/* ✅ reCAPTCHA widget */}
             <ReCAPTCHA
-              sitekey="6LdGgyIrAAAAAEyi8hwIeO2fhKiZOvVfgMqt7fmX" // 🔑 Replace this!
+              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
               ref={recaptchaRef}
               onChange={handleRecaptchaChange}
               className="mt-2"
