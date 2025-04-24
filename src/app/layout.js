@@ -14,6 +14,15 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="dark">
+    <head>
+    <script dangerouslySetInnerHTML={{
+      __html: `
+      if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+      `
+    }} />
+    </head>
       <body className="bg-pattern min-h-screen flex flex-col text-gray-900 dark:text-white dark:bg-[#0f172a]">
         <AuthProvider>
           <CartProvider>

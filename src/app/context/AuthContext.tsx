@@ -1,3 +1,4 @@
+// context/AuthContext.tsx
 'use client';
 
 import { onAuthStateChanged, signOut } from 'firebase/auth';
@@ -9,17 +10,16 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }: any) => {
   const [user, setUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true); // new loading state
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
-          // Fetch Firestore document for the logged-in user
           const docRef = doc(db, 'users', user.uid);
           const docSnap = await getDoc(docRef);
-
           if (docSnap.exists()) {
-            const userData = docSnap.data(); // contains username, address, etc.
+            const userData = docSnap.data();
             setUser({
               uid: user.uid,
               email: user.email,
@@ -27,7 +27,6 @@ export const AuthProvider = ({ children }: any) => {
               photoURL: user.photoURL || null,
             });
           } else {
-            // No document found, fallback to basic auth data
             setUser({
               uid: user.uid,
               email: user.email,
@@ -40,6 +39,7 @@ export const AuthProvider = ({ children }: any) => {
       } else {
         setUser(null);
       }
+      setAuthLoading(false); // mark auth as loaded
     });
 
     return () => unsubscribe();
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }: any) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, logout }}>
+    <AuthContext.Provider value={{ user, authLoading, logout }}>
       {children}
     </AuthContext.Provider>
   );

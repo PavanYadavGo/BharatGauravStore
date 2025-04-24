@@ -1,173 +1,217 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { doc, getDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "../../helpers/firebaseConfig";
-import { useAuth } from "../context/AuthContext";
-import Image from "next/image";
-import toast from "react-hot-toast";
+import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import { db } from '../../helpers/firebaseConfig';
+import {
+  addDoc,
+  collection,
+  serverTimestamp,
+  doc,
+  getDoc,
+} from 'firebase/firestore';
+import toast from 'react-hot-toast';
+import ReCAPTCHA from 'react-google-recaptcha'; // ✅ Added import
 
 export default function CheckoutPage() {
-  const searchParams = useSearchParams();
-  const productId = searchParams.get("productId");
+  const { cart, clearCart, getTotalPrice } = useCart();
+  const { user, authLoading } = useAuth();
   const router = useRouter();
-  const { user } = useAuth();
 
-  const [product, setProduct] = useState(null);
-  const [buyerEmail, setBuyerEmail] = useState("");
-  const [buyerName, setBuyerName] = useState("");
-  const [contactNumber, setContactNumber] = useState("");
-  const [address, setAddress] = useState("");
-  const [zipCode, setZipCode] = useState("");
-  const [quantity, setQuantity] = useState(1);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [buyerEmail, setBuyerEmail] = useState('');
+  const [buyerName, setBuyerName] = useState('');
+  const [contactNumber, setContactNumber] = useState('');
+  const [address, setAddress] = useState('');
+  const [zipCode, setZipCode] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('cod');
+  const [loading, setLoading] = useState(false);
+  const [captchaVerified, setCaptchaVerified] = useState(false); // ✅ reCAPTCHA verification state
+
+  const recaptchaRef = useRef<ReCAPTCHA | null>(null); // ✅ reCAPTCHA ref
 
   useEffect(() => {
+    if (authLoading) return;
+
     if (!user) {
-      toast.error("Please log in to access checkout.");
-      router.push("/login");
+      toast.error('Please log in to checkout.');
+      router.push('/login');
+    } else {
+      const fetchUserData = async () => {
+        try {
+          const docRef = doc(db, 'users', user.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const userData = docSnap.data();
+            setBuyerEmail(userData.email || '');
+            setBuyerName(userData.username || '');
+            setContactNumber(userData.phone || '');
+            setAddress(userData.address || '');
+            setZipCode(userData.zip || '');
+          } else {
+            toast('User profile incomplete. Please fill all fields.', { icon: '⚠️' });
+          }
+        } catch (error) {
+          console.error('Error fetching user info:', error);
+          toast.error('Failed to fetch user data');
+        }
+      };
+      fetchUserData();
     }
-  }, [user]);
+  }, [user, authLoading]);
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      if (!productId) return;
-      const productRef = doc(db, "products", productId);
-      const productSnap = await getDoc(productRef);
-      if (productSnap.exists()) {
-        setProduct({ id: productSnap.id, ...productSnap.data() });
-        if (user?.email) setBuyerEmail(user.email);
-      }
-    };
-
-    if (user) fetchProduct();
-  }, [productId, user]);
+  const handleRecaptchaChange = (token: string | null) => {
+    setCaptchaVerified(!!token); // ✅ Set true if token exists
+  };
 
   const handleConfirmPurchase = async () => {
-    if (!buyerEmail || !product || !buyerName || !contactNumber || !address || !zipCode) {
-      return toast.error("Please fill all fields!");
+    if (loading) return;
+
+    if (!captchaVerified) {
+      return toast.error('Please verify reCAPTCHA!');
     }
 
-    try {
-      const productImage = product.images?.[0] || product.mainImage || product.imageUrl || "";
+    if (!buyerEmail || !buyerName || !contactNumber || !address || !zipCode) {
+      return toast.error('Please fill all fields!');
+    }
+    if (cart.length === 0) {
+      return toast.error('Your cart is empty!');
+    }
 
-      await addDoc(collection(db, "orders"), {
-        productId: product.id,
-        productName: product.name,
-        price: product.price * quantity,
-        quantity,
-        image: productImage,
-        buyerEmail,
-        buyerName,
-        contactNumber,
+    setLoading(true);
+    try {
+      await addDoc(collection(db, 'orders'), {
+        userId: user?.uid,
+        email: buyerEmail,
+        name: buyerName,
+        contact: contactNumber,
         address,
-        zipCode,
+        zip: zipCode,
+        paymentMethod,
+        items: cart,
+        total: getTotalPrice(),
         createdAt: serverTimestamp(),
       });
 
-      toast.success("Order placed successfully!");
-      router.push("/order-success");
+      toast.success('Order placed successfully!');
+      clearCart();
+      setTimeout(() => router.push('/'), 1500);
     } catch (error) {
-      toast.error("Failed to place order.");
-      console.error(error);
+      console.error('Checkout Error:', error);
+      toast.error('Failed to place order. Try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (!user || !product) {
-    return <p className="text-center mt-10 text-gray-600">Loading checkout...</p>;
-  }
-
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow rounded mt-10">
-      <h2 className="text-2xl font-bold mb-4">Checkout</h2>
+    <main className="min-h-screen bg-gradient-to-br from-[#f4f7fa] to-[#dceefb] dark:from-gray-900 dark:to-gray-800 p-4">
+      <div className="flex flex-col lg:flex-row gap-6 max-w-6xl mx-auto">
+        {/* LEFT: Cart Preview */}
+        <div className="lg:w-1/2 w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">🛒 Your Cart</h2>
+          {cart.length === 0 ? (
+            <p className="text-gray-600 dark:text-gray-300">Your cart is empty.</p>
+          ) : (
+            <div className="max-h-[400px] overflow-y-auto space-y-4 pr-2">
+              {cart.map((item, index) => (
+                <div key={index} className="flex gap-4 border-b pb-4">
+                  <img
+                    src={item.images?.[0] || '/placeholder.jpg'}
+                    alt={item.name}
+                    className="w-24 h-24 object-cover rounded-md"
+                  />
+                  <div className="flex flex-col justify-center">
+                    <h3 className="font-semibold text-gray-800 dark:text-white">{item.name}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">₹{item.price}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Qty: {item.quantity}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-      <div className="flex gap-6 items-center">
-        <Image
-          src={product.images?.[0] || product.mainImage || product.imageUrl || "/assets/default-product.jpg"}
-          alt={product.name}
-          width={120}
-          height={120}
-          className="rounded object-cover"
-        />
-        <div>
-          <p className="text-xl font-semibold">{product.name}</p>
-          <p className="text-green-600 text-lg font-medium">₹{product.price}</p>
-          <div className="mt-2 flex items-center gap-2">
-            <label className="font-medium">Qty:</label>
+        {/* RIGHT: Checkout Form */}
+        <div className="lg:w-1/2 w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Checkout</h2>
+          <div className="grid gap-4">
             <input
-              type="number"
-              value={quantity}
-              min={1}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              className="w-20 px-2 py-1 border border-gray-300 rounded"
+              type="text"
+              placeholder="Full Name"
+              value={buyerName}
+              onChange={(e) => setBuyerName(e.target.value)}
+              className="input-style"
+              autoComplete="name"
             />
+            <input
+              type="email"
+              placeholder="Email"
+              value={buyerEmail}
+              disabled
+              className="input-style bg-gray-100 text-gray-500 cursor-not-allowed"
+              autoComplete="email"
+            />
+            <input
+              type="tel"
+              placeholder="Contact Number"
+              value={contactNumber}
+              onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, ''))}
+              className="input-style"
+              autoComplete="tel"
+            />
+            <input
+              type="text"
+              placeholder="Address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="input-style"
+              autoComplete="address-line1"
+            />
+            <input
+              type="text"
+              placeholder="ZIP Code"
+              value={zipCode}
+              onChange={(e) => setZipCode(e.target.value)}
+              className="input-style"
+              autoComplete="postal-code"
+            />
+            <select
+              value={paymentMethod}
+              onChange={(e) => setPaymentMethod(e.target.value)}
+              className="input-style"
+            >
+              <option value="cod">Cash on Delivery</option>
+              <option value="online">Upi Payment</option>
+            </select>
+
+            {/* ✅ reCAPTCHA widget */}
+            <ReCAPTCHA
+              sitekey="6LdGgyIrAAAAAEyi8hwIeO2fhKiZOvVfgMqt7fmX" // 🔑 Replace this!
+              ref={recaptchaRef}
+              onChange={handleRecaptchaChange}
+              className="mt-2"
+            />
+          </div>
+
+          <div className="flex justify-between items-center mt-6">
+            <span className="text-xl font-semibold text-green-600">
+              Total: ₹{getTotalPrice()}
+            </span>
+            <button
+              onClick={handleConfirmPurchase}
+              disabled={loading}
+              className={`bg-[#ff6740] hover:bg-orange-600 text-white px-6 py-2 rounded ${
+                loading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+            >
+              {loading ? 'Processing...' : 'Confirm Order'}
+            </button>
           </div>
         </div>
       </div>
-
-      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block mb-1 font-medium">Name</label>
-          <input
-            type="text"
-            value={buyerName}
-            onChange={(e) => setBuyerName(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded"
-            placeholder="Your full name"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-1 font-medium">Email</label>
-          <input
-            type="email"
-            value={buyerEmail}
-            disabled
-            className="w-full p-3 border border-gray-300 rounded bg-gray-100"
-            placeholder="Your email"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-1 font-medium">Contact Number</label>
-          <input
-            type="tel"
-            value={contactNumber}
-            onChange={(e) => setContactNumber(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded"
-            placeholder="Mobile number"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-1 font-medium">Zip Code</label>
-          <input
-            type="text"
-            value={zipCode}
-            onChange={(e) => setZipCode(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded"
-            placeholder="Postal code"
-          />
-        </div>
-
-        <div className="sm:col-span-2">
-          <label className="block mb-1 font-medium">Address</label>
-          <textarea
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded"
-            placeholder="Full delivery address"
-            rows={3}
-          />
-        </div>
-      </div>
-
-      <button
-        onClick={handleConfirmPurchase}
-        className="mt-6 w-full bg-[#ff6740] text-white py-3 px-6 rounded font-semibold hover:bg-orange-600 transition"
-      >
-        ✅ Confirm Purchase
-      </button>
-    </div>
+    </main>
   );
 }
