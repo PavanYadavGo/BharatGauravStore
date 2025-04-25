@@ -1,13 +1,19 @@
-import HeroSection from "../components/HeroSection";
-import FeaturedProducts from "../components/FeaturedProducts";
-import SuperShoesSection from "../components/SuperShoesSection";
+'use client';
+import { useState } from 'react';
+import HeroSection from '../components/HeroSection';
+import FeaturedProducts from '../components/FeaturedProducts';
+import SuperShoesSection from '../components/SuperShoesSection';
+import CategoriesTabs from '../components/CategoriesTabs';
 
 export default function Home() {
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
   return (
     <>
       <HeroSection />
-      <FeaturedProducts />
-      <SuperShoesSection/>
+      <CategoriesTabs onSelectCategory={setSelectedCategory} />
+      <FeaturedProducts selectedCategory={selectedCategory} />
+      <SuperShoesSection />
     </>
   );
 }

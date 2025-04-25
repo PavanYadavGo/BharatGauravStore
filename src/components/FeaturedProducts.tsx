@@ -7,10 +7,10 @@ import { useCart } from "../app/context/CartContext";
 import { FaStar, FaShoppingCart, FaEye, FaRupeeSign, FaCheckCircle } from "react-icons/fa";
 import toast from "react-hot-toast";
 
-export default function FeaturedProducts() {
+export default function FeaturedProducts({ selectedCategory = "All" }: { selectedCategory?: string }) {
   const { addToCart } = useCart();
-  const [products, setProducts] = useState([]);
-  const [animating, setAnimating] = useState({});
+  const [products, setProducts] = useState<any[]>([]);
+  const [animating, setAnimating] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -21,6 +21,7 @@ export default function FeaturedProducts() {
           id: doc.id,
           name: data.name,
           price: data.price,
+          category: data.category || "Other", // Add fallback
           images: Array.isArray(data.images) ? data.images : [],
         };
       });
@@ -30,7 +31,12 @@ export default function FeaturedProducts() {
     fetchProducts();
   }, []);
 
-  const handleAddToCart = (product) => {
+  const filteredProducts =
+    selectedCategory === "All"
+      ? products
+      : products.filter((product) => product.category === selectedCategory);
+
+  const handleAddToCart = (product: any) => {
     addToCart(product);
     toast.success(`${product.name} added to cart`);
 
@@ -49,7 +55,7 @@ export default function FeaturedProducts() {
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-12 max-w-7xl mx-auto">
-        {products.map((product) => (
+        {filteredProducts.map((product) => (
           <div
             key={product.id}
             className="flex flex-col bg-white dark:bg-[#121212] shadow-lg rounded-2xl overflow-hidden w-full max-w-[320px] mx-auto hover:shadow-2xl transition"
@@ -89,26 +95,24 @@ export default function FeaturedProducts() {
                   <FaEye /> View
                 </Link>
 
-                {/* ✅ Success Feedback Add to Cart */}
                 <button
-  onClick={() => handleAddToCart(product)}
-  className={`flex-1 py-2 px-3 rounded-md flex justify-center items-center gap-2 transition duration-300 ${
-    animating[product.id]
-      ? "bg-emerald-600 scale-105"
-      : "bg-green-600 hover:bg-green-700"
-  } text-white`}
->
-  {animating[product.id] ? (
-    <>
-      <FaCheckCircle className="text-white" /> Added
-    </>
-  ) : (
-    <>
-      <FaShoppingCart /> Add
-    </>
-  )}
-</button>
-
+                  onClick={() => handleAddToCart(product)}
+                  className={`flex-1 py-2 px-3 rounded-md flex justify-center items-center gap-2 transition duration-300 ${
+                    animating[product.id]
+                      ? "bg-emerald-600 scale-105"
+                      : "bg-green-600 hover:bg-green-700"
+                  } text-white`}
+                >
+                  {animating[product.id] ? (
+                    <>
+                      <FaCheckCircle className="text-white" /> Added
+                    </>
+                  ) : (
+                    <>
+                      <FaShoppingCart /> Add
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>
