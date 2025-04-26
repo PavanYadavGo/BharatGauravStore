@@ -5,15 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../../helpers/firebaseConfig';
-import {
-  addDoc,
-  collection,
-  serverTimestamp,
-  doc,
-  getDoc,
-} from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 import toast from 'react-hot-toast';
-import ReCAPTCHA from 'react-google-recaptcha'; // ✅ Added import
+import ReCAPTCHA from 'react-google-recaptcha';
 
 export default function CheckoutPage() {
   const { cart, clearCart, getTotalPrice } = useCart();
@@ -28,9 +22,20 @@ export default function CheckoutPage() {
   const [zipCode, setZipCode] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [loading, setLoading] = useState(false);
-  const [captchaVerified, setCaptchaVerified] = useState(false); // ✅ reCAPTCHA verification state
+  const [captchaVerified, setCaptchaVerified] = useState(false);
 
-  const recaptchaRef = useRef<ReCAPTCHA | null>(null); // ✅ reCAPTCHA ref
+  const recaptchaRef = useRef<ReCAPTCHA | null>(null);
+
+  // Load Razorpay script only once
+  useEffect(() => {
+    const loadRazorpayScript = () => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      document.body.appendChild(script);
+    };
+    loadRazorpayScript();
+  }, []);
 
   useEffect(() => {
     if (authLoading) return;
@@ -63,7 +68,35 @@ export default function CheckoutPage() {
   }, [user, authLoading]);
 
   const handleRecaptchaChange = (token: string | null) => {
-    setCaptchaVerified(!!token); // ✅ Set true if token exists
+    setCaptchaVerified(!!token);
+  };
+
+  const placeOrder = async (paymentStatus = 'Pending', paymentId = '') => {
+    try {
+      await addDoc(collection(db, 'orders'), {
+        userId: user?.uid,
+        email: buyerEmail,
+        name: buyerName,
+        contact: contactNumber,
+        address,
+        zip: zipCode,
+        paymentMethod,
+        paymentStatus,
+        paymentId,
+        items: cart,
+        total: getTotalPrice(),
+        createdAt: serverTimestamp(),
+      });
+
+      toast.success('Order placed successfully!');
+      clearCart();
+      setTimeout(() => router.push('/'), 1500);
+    } catch (error) {
+      console.error('Checkout Error:', error);
+      toast.error('Failed to place order. Try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleConfirmPurchase = async () => {
@@ -81,27 +114,31 @@ export default function CheckoutPage() {
     }
 
     setLoading(true);
-    try {
-      await addDoc(collection(db, 'orders'), {
-        userId: user?.uid,
-        email: buyerEmail,
-        name: buyerName,
-        contact: contactNumber,
-        address,
-        zip: zipCode,
-        paymentMethod,
-        items: cart,
-        total: getTotalPrice(),
-        createdAt: serverTimestamp(),
-      });
 
-      toast.success('Order placed successfully!');
-      clearCart();
-      setTimeout(() => router.push('/'), 1500);
-    } catch (error) {
-      console.error('Checkout Error:', error);
-      toast.error('Failed to place order. Try again.');
-    } finally {
+    if (paymentMethod === 'cod') {
+      await placeOrder('Pending', '');
+    } else {
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Razorpay Key ID from env
+        amount: getTotalPrice() * 100, // amount in paise
+        currency: 'INR',
+        name: 'Bharat Gaurav Store',
+        description: 'Order Payment',
+        handler: async function (response: any) {
+          await placeOrder('Paid', response.razorpay_payment_id);
+        },
+        prefill: {
+          name: buyerName,
+          email: buyerEmail,
+          contact: contactNumber,
+        },
+        theme: {
+          color: '#3399cc',
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
       setLoading(false);
     }
   };
@@ -184,10 +221,9 @@ export default function CheckoutPage() {
               className="input-style"
             >
               <option value="cod">Cash on Delivery</option>
-              <option value="online">Upi Payment</option>
+              <option value="online">UPI / Online Payment</option>
             </select>
 
-            {/* ✅ reCAPTCHA widget */}
             <ReCAPTCHA
               sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
               ref={recaptchaRef}

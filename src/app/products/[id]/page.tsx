@@ -58,10 +58,11 @@ export default function ProductDetails() {
     toast.success(`${product.name} added to cart`);
   };
 
-  const handleBuyNow = () => {
-    if (!product) return;
-    router.push(`/checkout?productId=${product.id}&quantity=${quantity}`);
-  };
+const handleBuyNow = () => {
+  if (!product) return;
+  addToCart({ ...product, quantity }); // ✅ Add to cart first
+  router.push('/checkout'); // ✅ Then go to checkout
+};
 
   if (loading) return <div className="text-center py-12">Loading product...</div>;
 

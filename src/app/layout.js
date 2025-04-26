@@ -13,23 +13,29 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="dark">
-    <head>
-    <script dangerouslySetInnerHTML={{
-      __html: `
-      if (localStorage.getItem('theme') === 'dark') {
-        document.documentElement.classList.add('dark');
-      }
-      `
-    }} />
-    </head>
+    <html lang="en">
       <body className="bg-pattern min-h-screen flex flex-col text-gray-900 dark:text-white dark:bg-[#0f172a]">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (localStorage.getItem('theme') === 'dark') {
+                document.documentElement.classList.add('dark');
+              }
+            `,
+          }}
+        />
         <AuthProvider>
           <CartProvider>
             <Navbar />
             <main className="flex-1 pt-20">{children}</main>
             <Footer />
-            <Toaster className="bg-green-500" position="top-center" toastOptions={{ duration: 3000 }} />
+            <Toaster
+              position="top-center"
+              toastOptions={{
+                className: 'bg-green-500 text-white',
+                duration: 3000,
+              }}
+            />
           </CartProvider>
         </AuthProvider>
       </body>
