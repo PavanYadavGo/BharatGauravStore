@@ -26,7 +26,6 @@ export default function CheckoutPage() {
 
   const recaptchaRef = useRef<ReCAPTCHA | null>(null);
 
-  // Load Razorpay script only once
   useEffect(() => {
     const loadRazorpayScript = () => {
       const script = document.createElement('script');
@@ -39,7 +38,6 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (authLoading) return;
-
     if (!user) {
       toast.error('Please log in to checkout.');
       router.push('/login');
@@ -103,14 +101,18 @@ export default function CheckoutPage() {
     if (loading) return;
 
     if (!captchaVerified) {
-      return toast.error('Please verify reCAPTCHA!');
+      toast.error('Please verify reCAPTCHA!');
+      return;
     }
 
     if (!buyerEmail || !buyerName || !contactNumber || !address || !zipCode) {
-      return toast.error('Please fill all fields!');
+      toast.error('Please fill all fields!');
+      return;
     }
+
     if (cart.length === 0) {
-      return toast.error('Your cart is empty!');
+      toast.error('Your cart is empty!');
+      return;
     }
 
     setLoading(true);
@@ -119,12 +121,13 @@ export default function CheckoutPage() {
       await placeOrder('Pending', '');
     } else {
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Razorpay Key ID from env
-        amount: getTotalPrice() * 100, // amount in paise
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
+        amount: getTotalPrice() * 100,
         currency: 'INR',
         name: 'Bharat Gaurav Store',
         description: 'Order Payment',
         handler: async function (response: any) {
+          console.log('✅ Payment Success Response:', response);
           await placeOrder('Paid', response.razorpay_payment_id);
         },
         prefill: {
@@ -134,6 +137,12 @@ export default function CheckoutPage() {
         },
         theme: {
           color: '#3399cc',
+        },
+        modal: {
+          ondismiss: function () {
+            toast.error('Payment was cancelled.');
+            setLoading(false);
+          },
         },
       };
 
@@ -146,7 +155,7 @@ export default function CheckoutPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#f4f7fa] to-[#dceefb] dark:from-gray-900 dark:to-gray-800 p-4">
       <div className="flex flex-col lg:flex-row gap-6 max-w-6xl mx-auto">
-        {/* LEFT: Cart Preview */}
+        {/* LEFT SIDE: Cart Items */}
         <div className="lg:w-1/2 w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
           <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">🛒 Your Cart</h2>
           {cart.length === 0 ? (
@@ -171,7 +180,7 @@ export default function CheckoutPage() {
           )}
         </div>
 
-        {/* RIGHT: Checkout Form */}
+        {/* RIGHT SIDE: Checkout Form */}
         <div className="lg:w-1/2 w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
           <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Checkout</h2>
           <div className="grid gap-4">
