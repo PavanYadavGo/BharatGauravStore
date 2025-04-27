@@ -9,6 +9,12 @@ import { addDoc, collection, serverTimestamp, doc, getDoc } from 'firebase/fires
 import toast from 'react-hot-toast';
 import ReCAPTCHA from 'react-google-recaptcha';
 
+declare global {
+  interface Window {
+    Razorpay?: any;
+  }
+}
+
 export default function CheckoutPage() {
   const { cart, clearCart, getTotalPrice } = useCart();
   const { user, authLoading } = useAuth();
@@ -26,13 +32,14 @@ export default function CheckoutPage() {
   const recaptchaRef = useRef<ReCAPTCHA | null>(null);
 
   useEffect(() => {
-    const loadRazorpayScript = () => {
+    const scriptId = 'razorpay-script';
+    if (!document.getElementById(scriptId)) {
       const script = document.createElement('script');
       script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.id = scriptId;
       script.async = true;
       document.body.appendChild(script);
-    };
-    loadRazorpayScript();
+    }
   }, []);
 
   useEffect(() => {
@@ -62,7 +69,7 @@ export default function CheckoutPage() {
       };
       fetchUserData();
     }
-  }, [user, authLoading]);
+  }, [user, authLoading, router]);
 
   const handleRecaptchaChange = (token: string | null) => {
     setCaptchaVerified(!!token);
@@ -87,7 +94,7 @@ export default function CheckoutPage() {
 
       toast.success('Order placed successfully!');
       clearCart();
-      setTimeout(() => router.push('/'), 1500);
+      router.push('/');
     } catch (error) {
       console.error('Checkout Error:', error);
       toast.error('Failed to place order. Try again.');
@@ -98,50 +105,46 @@ export default function CheckoutPage() {
 
   const handleConfirmPurchase = async () => {
     if (loading) return;
-  
+
     if (!captchaVerified) {
       toast.error('Please verify reCAPTCHA!');
       return;
     }
-  
+
     if (!buyerEmail || !buyerName || !contactNumber || !address || !zipCode) {
       toast.error('Please fill all fields!');
       return;
     }
-  
+
     if (cart.length === 0) {
       toast.error('Your cart is empty!');
       return;
     }
-  
+
     setLoading(true);
-  
+
     if (paymentMethod === 'cod') {
       await placeOrder('Pending', '');
     } else {
       try {
-        // 🛒 FIRST create order from your backend
         const response = await fetch('/api/razorpay', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ amount: getTotalPrice() }),
         });
-  
+
         const data = await response.json();
-  
-        if (!data.id) {
-          throw new Error('Order creation failed');
-        }
-  
+
+        if (!data.id) throw new Error('Order creation failed');
+
         const options = {
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
-          amount: data.amount,   // Already in paise
+          amount: data.amount,
           currency: data.currency,
           name: 'Bharat Gaurav Store',
           description: 'Order Payment',
-          order_id: data.id,  // 👈 important
-          handler: async function (response: any) {
-            console.log('✅ Payment Success Response:', response);
+          order_id: data.id,
+          handler: async (response: any) => {
             await placeOrder('Paid', response.razorpay_payment_id);
           },
           prefill: {
@@ -149,32 +152,29 @@ export default function CheckoutPage() {
             email: buyerEmail,
             contact: contactNumber,
           },
-          theme: {
-            color: '#3399cc',
-          },
+          theme: { color: '#3399cc' },
           modal: {
-            ondismiss: function () {
-              toast.error('Payment was cancelled.');
+            ondismiss: () => {
+              toast.error('Payment cancelled.');
               setLoading(false);
             },
           },
         };
-  
-        const paymentObject = new (window as any).Razorpay(options);
+
+        const paymentObject = new window.Razorpay(options);
         paymentObject.open();
       } catch (error) {
-        console.error('Error:', error);
+        console.error('Payment error:', error);
         toast.error('Payment failed, please try again.');
         setLoading(false);
       }
     }
   };
-  
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#f4f7fa] to-[#dceefb] dark:from-gray-900 dark:to-gray-800 p-4">
-            <div className="flex flex-col lg:flex-row gap-6 max-w-6xl mx-auto">
-        {/* LEFT SIDE: Cart Items */}
+      <div className="flex flex-col lg:flex-row gap-6 max-w-6xl mx-auto">
+        {/* LEFT SIDE */}
         <div className="lg:w-1/2 w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
           <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">🛒 Your Cart</h2>
           {cart.length === 0 ? (
@@ -199,78 +199,26 @@ export default function CheckoutPage() {
           )}
         </div>
 
-        {/* RIGHT SIDE: Checkout Form */}
+        {/* RIGHT SIDE */}
         <div className="lg:w-1/2 w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
           <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Checkout</h2>
           <div className="grid gap-4">
-            <input
-              type="text"
-              placeholder="Full Name"
-              value={buyerName}
-              onChange={(e) => setBuyerName(e.target.value)}
-              className="input-style"
-              autoComplete="name"
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              value={buyerEmail}
-              disabled
-              className="input-style bg-gray-100 text-gray-500 cursor-not-allowed"
-              autoComplete="email"
-            />
-            <input
-              type="tel"
-              placeholder="Contact Number"
-              value={contactNumber}
-              onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, ''))}
-              className="input-style"
-              autoComplete="tel"
-            />
-            <input
-              type="text"
-              placeholder="Address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              className="input-style"
-              autoComplete="address-line1"
-            />
-            <input
-              type="text"
-              placeholder="ZIP Code"
-              value={zipCode}
-              onChange={(e) => setZipCode(e.target.value)}
-              className="input-style"
-              autoComplete="postal-code"
-            />
-            <select
-              value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value)}
-              className="input-style"
-            >
+            {/* FORM */}
+            <input type="text" placeholder="Full Name" value={buyerName} onChange={(e) => setBuyerName(e.target.value)} className="input-style" autoComplete="name" />
+            <input type="email" placeholder="Email" value={buyerEmail} disabled className="input-style bg-gray-100 text-gray-500 cursor-not-allowed" autoComplete="email" />
+            <input type="tel" placeholder="Contact Number" value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, ''))} className="input-style" autoComplete="tel" />
+            <input type="text" placeholder="Address" value={address} onChange={(e) => setAddress(e.target.value)} className="input-style" autoComplete="address-line1" />
+            <input type="text" placeholder="ZIP Code" value={zipCode} onChange={(e) => setZipCode(e.target.value)} className="input-style" autoComplete="postal-code" />
+            <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="input-style">
               <option value="cod">Cash on Delivery</option>
               <option value="online">UPI / Online Payment</option>
             </select>
-
-            <ReCAPTCHA
-              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
-              ref={recaptchaRef}
-              onChange={handleRecaptchaChange}
-              className="mt-2"
-            />
+            <ReCAPTCHA sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!} ref={recaptchaRef} onChange={handleRecaptchaChange} className="mt-2" />
           </div>
 
           <div className="flex justify-between items-center mt-6">
-            <span className="text-xl font-semibold text-green-600">
-              Total: ₹{getTotalPrice()}
-            </span>
-            <button
-              onClick={handleConfirmPurchase}
-              disabled={loading}
-              className={`bg-[#ff6740] hover:bg-orange-600 text-white px-6 py-2 rounded ${
-                loading ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-            >
+            <span className="text-xl font-semibold text-green-600">Total: ₹{getTotalPrice()}</span>
+            <button onClick={handleConfirmPurchase} disabled={loading} className={`bg-[#ff6740] hover:bg-orange-600 text-white px-6 py-2 rounded ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}>
               {loading ? 'Processing...' : 'Confirm Order'}
             </button>
           </div>
