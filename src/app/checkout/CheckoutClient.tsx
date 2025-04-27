@@ -119,44 +119,55 @@ export default function CheckoutPage() {
     if (paymentMethod === 'cod') {
       await placeOrder('Pending', '');
     } else {
-      const razorpayKey = process.env.NODE_ENV === 'production'
-        ? process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
-        : process.env.RAZORPAY_KEY_SECRET;
+      try {
+        // 🔥 NEW: Create order via API route
+        const res = await fetch('/api/razorpay', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: getTotalPrice() }),
+        });
 
-      const options = {
-        key: razorpayKey,
-        amount: getTotalPrice() * 100,
-        currency: 'INR',
-        name: 'Bharat Gaurav Store',
-        description: 'Order Payment',
-        handler: async function (response: any) {
-          console.log('✅ Payment Success Response:', response);
-          await placeOrder('Paid', response.razorpay_payment_id);
-        },
-        prefill: {
-          name: buyerName,
-          email: buyerEmail,
-          contact: contactNumber,
-        },
-        theme: {
-          color: '#3399cc',
-        },
-        modal: {
-          ondismiss: function () {
-            toast.error('Payment was cancelled.');
-            setLoading(false);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Something went wrong');
+
+        const options = {
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
+          amount: data.amount,
+          currency: 'INR',
+          name: 'Bharat Gaurav Store',
+          description: 'Order Payment',
+          order_id: data.id,
+          handler: async function (response: any) {
+            console.log('✅ Payment Success Response:', response);
+            await placeOrder('Paid', response.razorpay_payment_id);
           },
-        },
-      };
+          prefill: {
+            name: buyerName,
+            email: buyerEmail,
+            contact: contactNumber,
+          },
+          theme: { color: '#3399cc' },
+          modal: {
+            ondismiss: function () {
+              toast.error('Payment was cancelled.');
+              setLoading(false);
+            },
+          },
+        };
 
-      const paymentObject = new (window as any).Razorpay(options);
-      paymentObject.open();
+        const paymentObject = new (window as any).Razorpay(options);
+        paymentObject.open();
+      } catch (error: any) {
+        console.error(error);
+        toast.error(error.message || 'Payment failed. Try again.');
+        setLoading(false);
+      }
     }
   };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#f4f7fa] to-[#dceefb] dark:from-gray-900 dark:to-gray-800 p-4">
-      <div className="flex flex-col lg:flex-row gap-6 max-w-6xl mx-auto">
+            <div className="flex flex-col lg:flex-row gap-6 max-w-6xl mx-auto">
         {/* LEFT SIDE: Cart Items */}
         <div className="lg:w-1/2 w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
           <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">🛒 Your Cart</h2>

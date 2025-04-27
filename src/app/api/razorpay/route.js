@@ -1,6 +1,6 @@
 // src/app/api/razorpay/route.js
 
-import Razorpay from "razorpay";
+import Razorpay from 'razorpay';
 
 export async function POST(req) {
   try {
@@ -13,16 +13,22 @@ export async function POST(req) {
     });
 
     const options = {
-      amount: amount * 100, // Razorpay works in paise
-      currency: "INR",
+      amount: amount * 100, // paise
+      currency: 'INR',
       receipt: `receipt_order_${Date.now()}`,
     };
 
     const order = await razorpay.orders.create(options);
 
-    return new Response(JSON.stringify(order), { status: 200 });
+    return new Response(JSON.stringify(order), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
-    console.error(error);
-    return new Response(JSON.stringify({ error: "Order creation failed" }), { status: 500 });
+    console.error('Razorpay Order Error:', error);
+    return new Response(JSON.stringify({ error: error.message || "Order creation failed" }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
