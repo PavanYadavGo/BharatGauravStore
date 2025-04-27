@@ -98,45 +98,48 @@ export default function CheckoutPage() {
 
   const handleConfirmPurchase = async () => {
     if (loading) return;
-
+  
     if (!captchaVerified) {
       toast.error('Please verify reCAPTCHA!');
       return;
     }
-
+  
     if (!buyerEmail || !buyerName || !contactNumber || !address || !zipCode) {
       toast.error('Please fill all fields!');
       return;
     }
-
+  
     if (cart.length === 0) {
       toast.error('Your cart is empty!');
       return;
     }
-
+  
     setLoading(true);
-
+  
     if (paymentMethod === 'cod') {
       await placeOrder('Pending', '');
     } else {
       try {
-        // 🔥 NEW: Create order via API route
-        const res = await fetch('/api/razorpay', {
+        // 🛒 FIRST create order from your backend
+        const response = await fetch('/api/razorpay', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ amount: getTotalPrice() }),
         });
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Something went wrong');
-
+  
+        const data = await response.json();
+  
+        if (!data.id) {
+          throw new Error('Order creation failed');
+        }
+  
         const options = {
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
-          amount: data.amount,
-          currency: 'INR',
+          amount: data.amount,   // Already in paise
+          currency: data.currency,
           name: 'Bharat Gaurav Store',
           description: 'Order Payment',
-          order_id: data.id,
+          order_id: data.id,  // 👈 important
           handler: async function (response: any) {
             console.log('✅ Payment Success Response:', response);
             await placeOrder('Paid', response.razorpay_payment_id);
@@ -146,7 +149,9 @@ export default function CheckoutPage() {
             email: buyerEmail,
             contact: contactNumber,
           },
-          theme: { color: '#3399cc' },
+          theme: {
+            color: '#3399cc',
+          },
           modal: {
             ondismiss: function () {
               toast.error('Payment was cancelled.');
@@ -154,16 +159,17 @@ export default function CheckoutPage() {
             },
           },
         };
-
+  
         const paymentObject = new (window as any).Razorpay(options);
         paymentObject.open();
-      } catch (error: any) {
-        console.error(error);
-        toast.error(error.message || 'Payment failed. Try again.');
+      } catch (error) {
+        console.error('Error:', error);
+        toast.error('Payment failed, please try again.');
         setLoading(false);
       }
     }
   };
+  
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#f4f7fa] to-[#dceefb] dark:from-gray-900 dark:to-gray-800 p-4">
