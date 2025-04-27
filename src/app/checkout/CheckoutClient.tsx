@@ -120,8 +120,8 @@ export default function CheckoutPage() {
       await placeOrder('Pending', '');
     } else {
       const razorpayKey = process.env.NODE_ENV === 'production'
-        ? process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID_LIVE
-        : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID_TEST;
+        ? process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
+        : process.env.RAZORPAY_KEY_SECRET;
 
       const options = {
         key: razorpayKey,
