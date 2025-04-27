@@ -14,7 +14,6 @@ export default function CheckoutPage() {
   const { user, authLoading } = useAuth();
   const router = useRouter();
 
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [buyerEmail, setBuyerEmail] = useState('');
   const [buyerName, setBuyerName] = useState('');
   const [contactNumber, setContactNumber] = useState('');
@@ -123,7 +122,7 @@ export default function CheckoutPage() {
       const razorpayKey = process.env.NODE_ENV === 'production'
         ? process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID_LIVE
         : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID_TEST;
-    
+
       const options = {
         key: razorpayKey,
         amount: getTotalPrice() * 100,
@@ -149,7 +148,10 @@ export default function CheckoutPage() {
           },
         },
       };
-    
+
+      const paymentObject = new (window as any).Razorpay(options);
+      paymentObject.open();
+    }
   };
 
   return (
@@ -259,5 +261,4 @@ export default function CheckoutPage() {
       </div>
     </main>
   );
-  }
 }
