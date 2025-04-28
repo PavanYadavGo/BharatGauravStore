@@ -105,24 +105,24 @@ export default function CheckoutPage() {
 
   const handleConfirmPurchase = async () => {
     if (loading) return;
-
+  
     if (!captchaVerified) {
       toast.error('Please verify reCAPTCHA!');
       return;
     }
-
+  
     if (!buyerEmail || !buyerName || !contactNumber || !address || !zipCode) {
       toast.error('Please fill all fields!');
       return;
     }
-
+  
     if (cart.length === 0) {
       toast.error('Your cart is empty!');
       return;
     }
-
+  
     setLoading(true);
-
+  
     if (paymentMethod === 'cod') {
       await placeOrder('Pending', '');
     } else {
@@ -132,13 +132,18 @@ export default function CheckoutPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ amount: getTotalPrice() }),
         });
-
+        
+        if (!response.ok) {
+          throw new Error('Failed to create Razorpay order');
+        }
+        
         const data = await response.json();
-
+        
         if (!data.id) throw new Error('Order creation failed');
-
+        
+  
         const options = {
-          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
           amount: data.amount,
           currency: data.currency,
           name: 'Bharat Gaurav Store',
@@ -160,7 +165,7 @@ export default function CheckoutPage() {
             },
           },
         };
-
+  
         const paymentObject = new window.Razorpay(options);
         paymentObject.open();
       } catch (error) {
@@ -170,6 +175,7 @@ export default function CheckoutPage() {
       }
     }
   };
+  
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#f4f7fa] to-[#dceefb] dark:from-gray-900 dark:to-gray-800 p-4">

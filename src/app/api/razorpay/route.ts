@@ -1,29 +1,30 @@
-import Razorpay from "razorpay";
+// app/api/razorpay/route.ts
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     console.log('Incoming body:', body);
 
-    const amount = body.amount;
+    const { amount } = body;
 
     if (!amount) {
       console.error('Amount not provided');
       return new Response(JSON.stringify({ error: "Amount is required" }), { status: 400 });
     }
 
+    // ✅ Dynamic import Razorpay only inside the function
+    const Razorpay = (await import('razorpay')).default;
+
     const razorpay = new Razorpay({
-      key_id: "rzp_live_OKaRaDsj2qgqx5",
-      key_secret: "ixDQQB8jcFjyXju7uAMF6vDX",
+      key_id: process.env.RAZORPAY_KEY_ID!,
+      key_secret: process.env.RAZORPAY_KEY_SECRET!,
     });
 
     const options = {
-      amount: amount * 100, // amount in paise
+      amount: amount * 100, // convert to paise
       currency: "INR",
-      receipt: `receipt_order_${Date.now()}`,
+      receipt: `receipt_${Date.now()}`,
     };
-
-    console.log('Creating order with options:', options);
 
     const order = await razorpay.orders.create(options);
 
@@ -32,8 +33,6 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify(order), { status: 200 });
   } catch (error: any) {
     console.error('❌ Error creating Razorpay order:', error);
-    console.error('❌ Full error:', JSON.stringify(error));
-
-    return new Response(JSON.stringify({ error: "Failed to create Razorpay order", details: error }), { status: 500 });
+    return new Response(JSON.stringify({ error: "Failed to create Razorpay order", details: error.message }), { status: 500 });
   }
 }
