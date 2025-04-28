@@ -33,7 +33,7 @@ export default function RootLayout({ children }) {
               position="top-center"
               toastOptions={{
                 className: 'bg-green-500 text-white',
-                duration: 3000,
+                duration: 2000,
               }}
             />
           </CartProvider>
