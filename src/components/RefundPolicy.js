@@ -41,7 +41,7 @@ const RefundPolicy = () => {
                 </li>
                 <li>
                     In case of any refunds approved by <strong>BHARATGAURAV Hair Accessories</strong>, it will take <strong>3 days</strong>
-                    for the refund to be processed to you.
+                    for the refund to be credited to you.
                 </li>
             </ol>
 
