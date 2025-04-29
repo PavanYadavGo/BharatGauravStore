@@ -29,6 +29,10 @@ const ReturnPolicy = () => {
                 quality check, it will be processed in accordance with our policies.
             </p>
 
+            <p className="mb-4">
+            Damaged and defective products replacement/Exchange will be delivered  with in 5-7 business days.
+            </p>
+
             <p className="mt-8">
                 If you have any questions about this Policy, please contact us via the information provided on our website.
             </p>
