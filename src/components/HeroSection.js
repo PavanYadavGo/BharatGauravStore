@@ -18,24 +18,23 @@ const ImageSlider = () => {
     const intervalId = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
     }, 3000);
-
     return () => clearInterval(intervalId);
   }, []);
 
   return (
-    <div className="relative w-full overflow-hidden">
+    <div className="relative w-full h-[40vh] md:h-[60vh] overflow-hidden">
       <div
         className="flex transition-transform duration-700 ease-in-out"
         style={{ transform: `translateX(-${currentIndex * 100}%)`, width: `${images.length * 100}%` }}
       >
         {images.map((image, index) => (
-          <div key={index} className="w-full flex-shrink-0 aspect-[16/6] relative">
+          <div key={index} className="w-full flex-shrink-0 relative h-full">
             <Image
               src={image}
               alt={`Slider Image ${index + 1}`}
               fill
-              className="object-contain" // Or object-cover depending on how you want it cropped
-              priority={index < 2}
+              className="object-cover"
+              priority={index === 0}
             />
           </div>
         ))}
