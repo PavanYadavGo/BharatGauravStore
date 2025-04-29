@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 
-const categories = ['All', 'Hair Clips', 'Hair Bands', 'Accessories'];
+const categories = ['All', 'Hair Clips'];
 
 export default function CategoriesTabs({ onSelectCategory }: { onSelectCategory: (cat: string) => void }) {
   const [active, setActive] = useState('All');
