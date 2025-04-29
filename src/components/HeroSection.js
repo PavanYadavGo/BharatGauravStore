@@ -4,11 +4,11 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 
 const images = [
-  '/assets/banner1.jpg',
-  '/assets/banner2.jpg',
-  '/assets/banner3.jpg',
-  '/assets/banner4.jpg',
-  '/assets/banner5.jpg',
+  '/assets/01.jpg',
+  '/assets/02.jpg',
+  '/assets/03.jpg',
+  '/assets/04.jpg',
+  '/assets/05.jpg',
 ];
 
 const ImageSlider = () => {
