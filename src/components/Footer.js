@@ -6,12 +6,22 @@ export default function Footer() {
           &copy; {new Date().getFullYear()} BHARATGAURAV. All rights reserved.
         </p>
         <p className="mt-2">
-          <a href="#" className="hover:underline dark:hover:text-blue-400">
+          <a href="https://bharatgauravshop.com/privacy-policy" className="hover:underline dark:hover:text-blue-400">
             Privacy Policy
           </a>{" "}
           |{" "}
-          <a href="#" className="hover:underline ml-2 dark:hover:text-blue-400">
+          <a href="https://bharatgauravshop.com/terms-and-conditions" className="hover:underline ml-2 dark:hover:text-blue-400">
             Terms of Service
+          </a>
+          <a href="https://bharatgauravshop.com/ShippingPolicy" className="hover:underline ml-2 dark:hover:text-blue-400">
+            ShippingPolicy
+          </a>
+          <a href="https://bharatgauravshop.com/ReturnPolicy" className="hover:underline ml-2 dark:hover:text-blue-400">
+          ReturnPolicy
+          </a>
+          ReturnPolicy
+          <a href="https://bharatgauravshop.com/RefundPolicy" className="hover:underline ml-2 dark:hover:text-blue-400">
+          RefundPolicy
           </a>
         </p>
       </div>
