@@ -16,6 +16,7 @@ const ReturnPolicy = () => {
                 <li>The item must have its original packaging.</li>
                 <li>If the item was purchased on sale, it may not be eligible for a return / exchange.</li>
                 <li>Only items found to be defective or damaged will be replaced based on an exchange request.</li>
+                <li className="mb-4">Damaged and defective products replacement/Exchange will be delivered  with in 5-7 business days.</li>
             </ul>
 
             <p className="mb-4">
@@ -27,10 +28,6 @@ const ReturnPolicy = () => {
                 For accepted exchange / return requests, once your returned product / item is received and inspected by
                 us, we will send you an email to notify you about the receipt. If your request is approved after the
                 quality check, it will be processed in accordance with our policies.
-            </p>
-
-            <p className="mb-4">
-            Damaged and defective products replacement/Exchange will be delivered  with in 5-7 business days.
             </p>
 
             <p className="mt-8">
