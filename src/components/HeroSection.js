@@ -4,11 +4,11 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 
 const images = [
-  '/assets/01.jpg',
-  '/assets/02.jpg',
-  '/assets/03.jpg',
-  '/assets/04.jpg',
-  // Add paths to all your banner images here
+  '/assets/banner1.jpg',
+  '/assets/banner2.jpg',
+  '/assets/banner3.jpg',
+  '/assets/banner4.jpg',
+  '/assets/banner5.jpg',
 ];
 
 const ImageSlider = () => {
@@ -17,34 +17,29 @@ const ImageSlider = () => {
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 3000); // Change image every 3 seconds (adjust as needed)
+    }, 3000);
 
-    return () => clearInterval(intervalId); // Cleanup the interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   return (
-    <div className="relative w-full h-auto overflow-hidden">
+    <div className="relative w-full h-[500px] overflow-hidden">
       <div
-        className="relative transition-transform duration-500 ease-in-out"
-        style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+        className="flex transition-transform duration-700 ease-in-out"
+        style={{ transform: `translateX(-${currentIndex * 100}%)`, width: `${images.length * 100}%` }}
       >
         {images.map((image, index) => (
-          <div
-            key={index}
-            className="inline-block w-full h-auto"
-          >
+          <div key={index} className="w-full flex-shrink-0 h-[500px] relative">
             <Image
               src={image}
               alt={`Slider Image ${index + 1}`}
-              width={1920} // Or your desired fixed width
-              height={500} // Or your desired fixed height (adjust based on your banner's aspect ratio)
-              className="object-cover w-full h-full"
-              priority={index < 2} // Prioritize the first few images
+              fill
+              className="object-cover"
+              priority={index < 2}
             />
           </div>
         ))}
       </div>
-      {/* Optional: Add navigation dots or arrows here */}
     </div>
   );
 };
