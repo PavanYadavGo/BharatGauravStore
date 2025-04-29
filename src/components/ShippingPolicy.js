@@ -20,6 +20,13 @@ const ShippingPolicy = () => {
             </ul>
 
             <p className="mt-8">
+            Email - bharatgaurav.enterprises@gmail.com
+            Phone number - 9029332067
+            3rd, A-305, Sindhudurg CHSL, Mandli Talav Road, Temba,
+            Bhayandar WEST, Thane, Maharashtra, 401101
+            </p>
+
+            <p className="mt-8">
                 If you have any questions about this Policy, please contact us via the information provided on our website.
             </p>
         </div>
