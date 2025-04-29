@@ -15,7 +15,7 @@ const TermsAndConditions = () => {
       </p>
 
       <p className="mb-4">
-        The Platform <strong>(https://bharatgauravshop.com/)</strong> is owned and operated by <strong>BHARATGAURAV Hair Accessories</strong> registered at A-204 Romal Kirti Complex, Nilemore Road, Nallasopara, India.
+        The Platform <strong>(https://bharatgauravshop.com/)</strong> is owned and operated by <strong>Rupesh Bashkar savant (BHARATGAURAV Tours)</strong> registered at A-204 Romal Kirti Complex, Nilemore Road, Nallasopara, India.
       </p>
 
       <h2 className="text-2xl font-semibold mt-8 mb-4">General Terms</h2>
