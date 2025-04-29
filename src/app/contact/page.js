@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import emailjs from '@emailjs/browser';
 import { motion } from 'framer-motion';
-import { FaEnvelope, FaUser, FaCommentDots } from 'react-icons/fa';
+import { FaEnvelope, FaUser, FaCommentDots, FaPhoneAlt, FaMapMarkerAlt } from 'react-icons/fa';
 
 export default function ContactPage() {
   const form = useRef();
@@ -49,6 +49,27 @@ export default function ContactPage() {
         {`Have questions or feedback? We'd love to hear from you!`}
       </motion.p>
 
+      {/* Contact Information Section */}
+      <motion.div 
+        className="max-w-xl mx-auto mb-12 text-left space-y-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3, duration: 0.6 }}
+      >
+        <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+          <FaEnvelope className="text-blue-600 dark:text-blue-400" />
+          <span>Email: <a href="mailto:bharatgaurav.enterprises@gmail.com" className="underline">bharatgaurav.enterprises@gmail.com</a></span>
+        </div>
+        <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+          <FaPhoneAlt className="text-blue-600 dark:text-blue-400" />
+          <span>Phone: <a href="tel:9029332067" className="underline">9029332067</a></span>
+        </div>
+        <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+          <FaMapMarkerAlt className="text-blue-600 dark:text-blue-400" />
+          <span>Address: 3rd, A-305, Sindhudurg CHSL, Mandli Talav Road, Temba, Bhayandar WEST, Thane, Maharashtra, 401101</span>
+        </div>
+      </motion.div>
+
       {sent && (
         <motion.div 
           className="mb-6 text-green-600 dark:text-green-400 font-semibold"
@@ -59,13 +80,14 @@ export default function ContactPage() {
         </motion.div>
       )}
 
+      {/* Contact Form */}
       <motion.form
         ref={form}
         onSubmit={sendEmail}
         className="max-w-xl mx-auto space-y-4 text-left"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.3, duration: 0.6 }}
+        transition={{ delay: 0.4, duration: 0.6 }}
       >
         <label className="block">
           <span className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200">
