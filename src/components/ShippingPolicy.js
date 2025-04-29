@@ -12,7 +12,7 @@ const ShippingPolicy = () => {
             </p>
 
             <ul className="list-disc pl-6 space-y-2 mb-6">
-                <li>Delivery of the shipment is subject to courier company / post office norms.</li>
+                <li>Orders will be delivered in 7 to 10 working days</li>
                 <li>Platform Owner shall not be liable for any delay in delivery by the courier company / postal authority.</li>
                 <li>Delivery of all orders will be made to the address provided by the buyer at the time of purchase.</li>
                 <li>Confirmation of our services will be sent to your email ID as specified during registration.</li>
