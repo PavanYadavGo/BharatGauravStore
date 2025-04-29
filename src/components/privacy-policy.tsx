@@ -6,8 +6,8 @@ const PrivacyPolicy = () => {
       <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
 
       <p className="mb-4">
-        This Privacy Policy describes how <strong>BHARATGAURAV Hair Accessories</strong> and its affiliates ("we", "our", "us") 
-        collect, use, share, protect, or otherwise process your personal information through our website <strong>https://bharatgauravshop.com/</strong> (the "Platform").
+        This Privacy Policy describes how <strong>BHARATGAURAV Hair Accessories</strong> and its affiliates (&quot;we&quot;, &quot;our&quot;, &quot;us&quot;) 
+        collect, use, share, protect, or otherwise process your personal information through our website <strong>https://bharatgauravshop.com/</strong> (the &quot;Platform&quot;).
       </p>
 
       <h2 className="text-2xl font-semibold mt-8 mb-4">Collection of Information</h2>
