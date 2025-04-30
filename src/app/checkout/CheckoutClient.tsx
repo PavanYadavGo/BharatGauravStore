@@ -9,12 +9,6 @@ import { addDoc, collection, serverTimestamp, doc, getDoc } from 'firebase/fires
 import toast from 'react-hot-toast';
 import ReCAPTCHA from 'react-google-recaptcha';
 
-declare global {
-  interface Window {
-    Razorpay?: any;
-  }
-}
-
 export default function CheckoutPage() {
   const { cart, clearCart, getTotalPrice } = useCart();
   const { user, authLoading } = useAuth();
@@ -32,13 +26,11 @@ export default function CheckoutPage() {
   const recaptchaRef = useRef<ReCAPTCHA | null>(null);
 
   useEffect(() => {
-    const scriptId = 'razorpay-script';
-    if (!document.getElementById(scriptId)) {
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.id = scriptId;
-      script.async = true;
-      document.body.appendChild(script);
+    if (!document.getElementById('phonepe-style')) {
+      const style = document.createElement('style');
+      style.id = 'phonepe-style';
+      style.innerHTML = `/* Add any needed styles */`;
+      document.head.appendChild(style);
     }
   }, []);
 
@@ -105,82 +97,59 @@ export default function CheckoutPage() {
 
   const handleConfirmPurchase = async () => {
     if (loading) return;
-  
+
     if (!captchaVerified) {
       toast.error('Please verify reCAPTCHA!');
       return;
     }
-  
+
     if (!buyerEmail || !buyerName || !contactNumber || !address || !zipCode) {
       toast.error('Please fill all fields!');
       return;
     }
-  
+
     if (cart.length === 0) {
       toast.error('Your cart is empty!');
       return;
     }
-  
+
     setLoading(true);
-  
+
     if (paymentMethod === 'cod') {
       await placeOrder('Pending', '');
     } else {
       try {
-        const response = await fetch('/api/razorpay', {
+        const response = await fetch('/api/phonepe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: getTotalPrice() }),
-        });
-        
-        if (!response.ok) {
-          throw new Error('Failed to create Razorpay order');
-        }
-        
-        const data = await response.json();
-        
-        if (!data.id) throw new Error('Order creation failed');
-        
-  
-        const options = {
-          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
-          amount: data.amount,
-          currency: data.currency,
-          name: 'Bharat Gaurav Store',
-          description: 'Order Payment',
-          order_id: data.id,
-          handler: async (response: any) => {
-            await placeOrder('Paid', response.razorpay_payment_id);
-          },
-          prefill: {
+          body: JSON.stringify({
+            amount: getTotalPrice(),
+            userId: user?.uid,
             name: buyerName,
             email: buyerEmail,
             contact: contactNumber,
-          },
-          theme: { color: '#3399cc' },
-          modal: {
-            ondismiss: () => {
-              toast.error('Payment cancelled.');
-              setLoading(false);
-            },
-          },
-        };
-  
-        const paymentObject = new window.Razorpay(options);
-        paymentObject.open();
+          }),
+        });
+
+        if (!response.ok) throw new Error('PhonePe payment initiation failed.');
+
+        const { redirectUrl } = await response.json();
+
+        if (!redirectUrl) throw new Error('Invalid PhonePe URL.');
+
+        window.location.href = redirectUrl; // Redirect to PhonePe payment page
       } catch (error) {
-        console.error('Payment error:', error);
+        console.error('PhonePe Error:', error);
         toast.error('Payment failed, please try again.');
         setLoading(false);
       }
     }
   };
-  
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#f4f7fa] to-[#dceefb] dark:from-gray-900 dark:to-gray-800 p-4">
       <div className="flex flex-col lg:flex-row gap-6 max-w-6xl mx-auto">
-        {/* LEFT SIDE */}
+        {/* Cart Summary */}
         <div className="lg:w-1/2 w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
           <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">🛒 Your Cart</h2>
           {cart.length === 0 ? (
@@ -189,11 +158,7 @@ export default function CheckoutPage() {
             <div className="max-h-[400px] overflow-y-auto space-y-4 pr-2">
               {cart.map((item, index) => (
                 <div key={index} className="flex gap-4 border-b pb-4">
-                  <img
-                    src={item.images?.[0] || '/placeholder.jpg'}
-                    alt={item.name}
-                    className="w-24 h-24 object-cover rounded-md"
-                  />
+                  <img src={item.images?.[0] || '/placeholder.jpg'} alt={item.name} className="w-24 h-24 object-cover rounded-md" />
                   <div className="flex flex-col justify-center">
                     <h3 className="font-semibold text-gray-800 dark:text-white">{item.name}</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-300">₹{item.price}</p>
@@ -205,19 +170,18 @@ export default function CheckoutPage() {
           )}
         </div>
 
-        {/* RIGHT SIDE */}
+        {/* Checkout Form */}
         <div className="lg:w-1/2 w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
           <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Checkout</h2>
           <div className="grid gap-4">
-            {/* FORM */}
-            <input type="text" placeholder="Full Name" value={buyerName} onChange={(e) => setBuyerName(e.target.value)} className="input-style" autoComplete="name" />
-            <input type="email" placeholder="Email" value={buyerEmail} disabled className="input-style bg-gray-100 text-gray-500 cursor-not-allowed" autoComplete="email" />
-            <input type="tel" placeholder="Contact Number" value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, ''))} className="input-style" autoComplete="tel" />
-            <input type="text" placeholder="Address" value={address} onChange={(e) => setAddress(e.target.value)} className="input-style" autoComplete="address-line1" />
-            <input type="text" placeholder="ZIP Code" value={zipCode} onChange={(e) => setZipCode(e.target.value)} className="input-style" autoComplete="postal-code" />
+            <input type="text" placeholder="Full Name" value={buyerName} onChange={(e) => setBuyerName(e.target.value)} className="input-style" />
+            <input type="email" placeholder="Email" value={buyerEmail} disabled className="input-style bg-gray-100 text-gray-500" />
+            <input type="tel" placeholder="Contact Number" value={contactNumber} onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, ''))} className="input-style" />
+            <input type="text" placeholder="Address" value={address} onChange={(e) => setAddress(e.target.value)} className="input-style" />
+            <input type="text" placeholder="ZIP Code" value={zipCode} onChange={(e) => setZipCode(e.target.value)} className="input-style" />
             <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="input-style">
               <option value="cod">Cash on Delivery</option>
-              <option value="online">UPI / Online Payment</option>
+              <option value="online">PhonePe / UPI</option>
             </select>
             <ReCAPTCHA sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!} ref={recaptchaRef} onChange={handleRecaptchaChange} className="mt-2" />
           </div>

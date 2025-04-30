@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import HeroSection from '../components/HeroSection';
+import HeroSection from '../components/ImageSlider';
 import FeaturedProducts from '../components/FeaturedProducts';
 import SuperShoesSection from '../components/SuperShoesSection';
 import CategoriesTabs from '../components/CategoriesTabs';
