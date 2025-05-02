@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { useCart } from '../app/context/CartContext';
 import { useAuth } from '../app/context/AuthContext';
-import { FaShoppingCart, FaBars, FaTimes, FaSun, FaMoon, FaClipboardList } from 'react-icons/fa';
+import { FaShoppingCart, FaBars, FaTimes, FaSun, FaMoon, FaClipboardList, FaTrash } from 'react-icons/fa'; // Import FaTrash
 import { FiLogOut } from 'react-icons/fi';
 import { useRouter, usePathname } from 'next/navigation';
 
@@ -14,6 +14,7 @@ const Navbar = () => {
   const [showCart, setShowCart] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [shouldBlink, setShouldBlink] = useState(false); // State to control blinking
 
   const { cart, removeFromCart, increaseQuantity, decreaseQuantity, getTotalPrice } = useCart();
   const { user, logout } = useAuth();
@@ -63,13 +64,17 @@ const Navbar = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [mobileMenuOpen]);
 
+  useEffect(() => {
+    // Update blinking state based on cart items
+    setShouldBlink(cart.length > 0);
+  }, [cart]);
+
   const handleLogout = async () => {
     await logout();
     setShowDropdown(false);
     router.push('/');
   };
 
-  // ✅ Fixed: Redirect to checkout if cart is not empty
   const handleBuyNow = () => {
     if (cart.length === 0) {
       alert('Your cart is empty!');
@@ -111,7 +116,11 @@ const Navbar = () => {
             <button onClick={() => setShowCart(!showCart)} aria-label="Cart" className="relative hover:text-[#ff6740]">
               <FaShoppingCart size={20} />
               {cart.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 rounded-full">
+                <span
+                  className={`absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 rounded-full ${
+                    shouldBlink ? 'animate-blink' : ''
+                  }`}
+                >
                   {cart.length}
                 </span>
               )}
@@ -135,10 +144,12 @@ const Navbar = () => {
                         <div className="flex-1">
                           <p className="text-sm font-medium truncate w-36">{item.name}</p>
                           <p className="text-xs text-green-600">₹{item.price} × {item.quantity}</p>
-                          <div className="flex gap-2 mt-1">
+                          <div className="flex gap-2 mt-1 items-center">
                             <button onClick={() => decreaseQuantity(item.id)} className="px-2 bg-gray-200 text-sm" disabled={item.quantity <= 1}>-</button>
                             <button onClick={() => increaseQuantity(item.id)} className="px-2 bg-gray-200 text-sm">+</button>
-                            <button onClick={() => removeFromCart(item.id)} className="text-red-500 text-xs">Remove</button>
+                            <button onClick={() => removeFromCart(item.id)} className="text-red-500 text-xs">
+                              <FaTrash size={14} /> {/* Replace FaTimes with FaTrash */}
+                            </button>
                           </div>
                         </div>
                       </li>
@@ -231,6 +242,18 @@ const Navbar = () => {
           </nav>
         </div>
       )}
+
+      {/* CSS for the continuous blink animation on the badge */}
+      <style jsx global>{`
+        @keyframes continuous-blink {
+          0% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.1); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+        .animate-blink {
+          animation: continuous-blink 1s ease-in-out infinite; /* Continuous blink */
+        }
+      `}</style>
     </header>
   );
 };

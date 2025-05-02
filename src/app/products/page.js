@@ -1,20 +1,22 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useCart } from "../context/CartContext"; 
-import { getDocs, productsCollection } from "../../helpers/firebaseConfig"; 
+import { useCart } from "../context/CartContext";
+import { getDocs, productsCollection } from "../../helpers/firebaseConfig";
 import Image from "next/image";
 import Link from "next/link";
+import ProductDrawer from "../../components/ProductDrawer";
 import { FaShoppingCart, FaEye } from "react-icons/fa";
 
 export default function Products() {
   const { addToCart } = useCart();
   const [products, setProducts] = useState([]);
-  const [animating, setAnimating] = useState({}); // 👈 for tracking animation state
+  const [animating, setAnimating] = useState({});
+  const [drawerProductId, setDrawerProductId] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
       const querySnapshot = await getDocs(productsCollection);
-      const fetchedProducts = querySnapshot.docs.map(doc => {
+      const fetchedProducts = querySnapshot.docs.map((doc) => {
         const data = doc.data();
         return {
           id: doc.id,
@@ -32,10 +34,7 @@ export default function Products() {
   const handleAddToCart = (product) => {
     addToCart(product);
 
-    // Trigger animation
     setAnimating((prev) => ({ ...prev, [product.id]: true }));
-
-    // Remove animation after 300ms
     setTimeout(() => {
       setAnimating((prev) => ({ ...prev, [product.id]: false }));
     }, 300);
@@ -65,12 +64,12 @@ export default function Products() {
               <p className="text-blue-600 dark:text-blue-400 font-bold">₹{product.price}</p>
 
               <div className="mt-4 flex space-x-2 justify-center">
-                <Link
-                  href={`/products/${product.id}`}
+                <button
+                  onClick={() => setDrawerProductId(product.id)}
                   className="bg-blue-600 text-white py-2 px-4 rounded flex items-center gap-2 hover:bg-blue-700 transition"
                 >
                   <FaEye /> View
-                </Link>
+                </button>
                 <button
                   onClick={() => handleAddToCart(product)}
                   className={`bg-green-600 text-white py-2 px-4 rounded flex items-center gap-2 transition transform duration-300 ${
@@ -84,6 +83,10 @@ export default function Products() {
           ))}
         </div>
       </div>
+
+      {drawerProductId && (
+        <ProductDrawer productId={drawerProductId} onClose={() => setDrawerProductId(null)} />
+      )}
     </section>
   );
 }

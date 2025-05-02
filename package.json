@@ -25,6 +25,7 @@
     "motion": "^12.6.3",
     "next": "15.2.4",
     "next-cloudinary": "^6.16.0",
+    "node-fetch": "^3.3.2",
     "razorpay": "^2.9.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
