@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import crypto from 'crypto';
-import { db } from '../../../helpers/firebaseConfig'; // Adjust the path as needed
+import { db } from '../../helpers/firebaseConfig'; // Adjust the path as needed
 import { doc, serverTimestamp, updateDoc } from 'firebase/firestore'; // Import Firebase functions
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
