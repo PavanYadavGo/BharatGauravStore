@@ -9,7 +9,7 @@ import { addDoc, collection, serverTimestamp, doc, getDoc } from 'firebase/fires
 import toast from 'react-hot-toast';
 import ReCAPTCHA from 'react-google-recaptcha';
 
-export default function CheckoutPage() {
+const PhonePeCheckout = () => {
   const { cart, clearCart, getTotalPrice } = useCart();
   const { user, authLoading } = useAuth();
   const router = useRouter();
@@ -22,17 +22,9 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [loading, setLoading] = useState(false);
   const [captchaVerified, setCaptchaVerified] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const recaptchaRef = useRef<ReCAPTCHA | null>(null);
-
-  useEffect(() => {
-    if (!document.getElementById('phonepe-style')) {
-      const style = document.createElement('style');
-      style.id = 'phonepe-style';
-      style.innerHTML = `/* Add any needed styles */`;
-      document.head.appendChild(style);
-    }
-  }, []);
 
   useEffect(() => {
     if (authLoading) return;
@@ -69,7 +61,8 @@ export default function CheckoutPage() {
 
   const placeOrder = async (paymentStatus = 'Pending', paymentId = '') => {
     try {
-      await addDoc(collection(db, 'orders'), {
+      setLoading(true);
+      const orderData = {
         userId: user?.uid,
         email: buyerEmail,
         name: buyerName,
@@ -82,11 +75,26 @@ export default function CheckoutPage() {
         items: cart,
         total: getTotalPrice(),
         createdAt: serverTimestamp(),
+      };
+
+      const docRef = await addDoc(collection(db, 'orders'), orderData);
+
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order: { ...orderData, id: docRef.id },
+        }),
       });
 
       toast.success('Order placed successfully!');
       clearCart();
-      router.push('/');
+      setShowSuccess(true);
+
+      setTimeout(() => {
+        setShowSuccess(false);
+        router.push('/');
+      }, 4000);
     } catch (error) {
       console.error('Checkout Error:', error);
       toast.error('Failed to place order. Try again.');
@@ -96,58 +104,59 @@ export default function CheckoutPage() {
   };
 
   const handleConfirmPurchase = async () => {
-    if (loading) return;
-
-    if (!captchaVerified) {
-      toast.error('Please verify reCAPTCHA!');
-      return;
-    }
-
-    if (!buyerEmail || !buyerName || !contactNumber || !address || !zipCode) {
-      toast.error('Please fill all fields!');
-      return;
-    }
-
-    if (cart.length === 0) {
-      toast.error('Your cart is empty!');
-      return;
-    }
-
-    setLoading(true);
+    if (!captchaVerified) return toast.error('Please complete the reCAPTCHA.');
+    if (!user) return toast.error('You must be logged in to place an order.');
+    if (cart.length === 0) return toast.error('Your cart is empty.');
 
     if (paymentMethod === 'cod') {
-      await placeOrder('Pending', '');
+      await placeOrder('Pending', 'COD');
     } else {
       try {
-        const response = await fetch('/api/phonepe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            amount: getTotalPrice(),
-            userId: user?.uid,
-            name: buyerName,
-            email: buyerEmail,
-            contact: contactNumber,
-          }),
+        setLoading(true);
+        const res = await fetch("/api/phonepe/initiate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount: getTotalPrice(), userId: user?.uid }),
         });
 
-        if (!response.ok) throw new Error('PhonePe payment initiation failed.');
-
-        const { redirectUrl } = await response.json();
-
-        if (!redirectUrl) throw new Error('Invalid PhonePe URL.');
-
-        window.location.href = redirectUrl; // Redirect to PhonePe payment page
+        const data = await res.json();
+        if (data.data?.instrumentResponse?.redirectInfo?.url) {
+          window.location.href = data.data.instrumentResponse.redirectInfo.url;
+        } else {
+          console.error("Unexpected PhonePe response", data);
+          toast.error('Failed to initiate payment.');
+        }
       } catch (error) {
-        console.error('PhonePe Error:', error);
-        toast.error('Payment failed, please try again.');
+        console.error("PhonePe payment initiation failed", error);
+        toast.error('Payment initiation failed.');
+      } finally {
         setLoading(false);
       }
     }
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-[#f4f7fa] to-[#dceefb] dark:from-gray-900 dark:to-gray-800 p-4">
+    <main className="relative min-h-screen bg-gradient-to-br from-[#f4f7fa] to-[#dceefb] dark:from-gray-900 dark:to-gray-800 p-4">
+      {/* Success Overlay */}
+      {showSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl px-10 py-8 text-center max-w-sm w-full">
+            <h2 className="text-3xl font-bold text-green-600 mb-2">🎉 Order Confirmed!</h2>
+            <p className="text-gray-700 dark:text-gray-300 mb-4">Thank you for your purchase.</p>
+            <button
+              onClick={() => {
+                setShowSuccess(false);
+                router.push('/');
+              }}
+              className="mt-4 px-5 py-2 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition"
+            >
+              Continue Shopping
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Checkout UI */}
       <div className="flex flex-col lg:flex-row gap-6 max-w-6xl mx-auto">
         {/* Cart Summary */}
         <div className="lg:w-1/2 w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
@@ -183,17 +192,30 @@ export default function CheckoutPage() {
               <option value="cod">Cash on Delivery</option>
               <option value="online">PhonePe / UPI</option>
             </select>
-            <ReCAPTCHA sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!} ref={recaptchaRef} onChange={handleRecaptchaChange} className="mt-2" />
+            <ReCAPTCHA
+              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
+              ref={recaptchaRef}
+              onChange={handleRecaptchaChange}
+              className="mt-2"
+            />
           </div>
 
           <div className="flex justify-between items-center mt-6">
             <span className="text-xl font-semibold text-green-600">Total: ₹{getTotalPrice()}</span>
-            <button onClick={handleConfirmPurchase} disabled={loading} className={`bg-[#ff6740] hover:bg-orange-600 text-white px-6 py-2 rounded ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}>
-              {loading ? 'Processing...' : 'Confirm Order'}
+            <button
+              onClick={handleConfirmPurchase}
+              disabled={loading}
+              className={`bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold text-lg px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition duration-300 ${
+                loading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+            >
+              {loading ? 'Processing...' : 'Buy Now'}
             </button>
           </div>
         </div>
       </div>
     </main>
   );
-}
+};
+
+export default PhonePeCheckout;
