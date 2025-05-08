@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 
-const categories = ['All', 'Hair Clips'];
+const categories = ['All', 'Hair Clips','Jaw Clip','Mini clips','Banana Clips','Combs French','Headbands','Ponytail','Hair Pins Clip','Hair Band']; // Keep your categories
 
 export default function CategoriesTabs({ onSelectCategory }: { onSelectCategory: (cat: string) => void }) {
   const [active, setActive] = useState('All');
@@ -12,16 +12,14 @@ export default function CategoriesTabs({ onSelectCategory }: { onSelectCategory:
   };
 
   return (
-    <div className="flex gap-4 justify-center mt-6 flex-wrap">
+    <div className="flex justify-center mt-6 space-x-4"> {/* Changed to space-x for horizontal spacing */}
       {categories.map((cat) => (
         <button
           key={cat}
           onClick={() => handleClick(cat)}
-          className={`px-4 py-2 rounded-full text-sm font-medium border transition ${
-            active === cat
-              ? 'bg-[#ff6740] text-white border-[#ff6740]'
-              : 'bg-white text-gray-700 border-gray-300'
-          }`}
+          className={`text-sm font-medium transition-colors duration-200 ${
+            active === cat ? 'text-blue-600 border-b-2 border-blue-600 pb-1' : 'text-gray-600 hover:text-blue-600'
+          } focus:outline-none`}
         >
           {cat}
         </button>
