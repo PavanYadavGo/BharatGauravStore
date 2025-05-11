@@ -14,10 +14,11 @@ import { auth, googleProvider } from '../../lib/firebase';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  googleSignIn: () => Promise<UserCredential>;
-  signUpWithEmail: (email: string, password: string) => Promise<UserCredential>;
+  googleSignIn: () => Promise<UserCredential | void>;
+  signUpWithEmail: (email: string, password: string) => Promise<UserCredential | void>;
   logOut: () => Promise<void>;
   loginWithGoogle: () => Promise<void>;
+  authLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,17 +26,28 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(false); // ✅ Correct placement
 
-  const googleSignIn = () => {
-    return signInWithPopup(auth, googleProvider); // returns Promise<UserCredential>
+  const googleSignIn = async () => {
+    setAuthLoading(true);
+    try {
+      return await signInWithPopup(auth, googleProvider);
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
-  const signUpWithEmail = (email: string, password: string) => {
-    return createUserWithEmailAndPassword(auth, email, password); // returns Promise<UserCredential>
+  const signUpWithEmail = async (email: string, password: string) => {
+    setAuthLoading(true);
+    try {
+      return await createUserWithEmailAndPassword(auth, email, password);
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
   const logOut = () => {
-    return signOut(auth); // returns Promise<void>
+    return signOut(auth);
   };
 
   const loginWithGoogle = async () => {
@@ -52,7 +64,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, googleSignIn, signUpWithEmail, logOut, loginWithGoogle }}>
+    <AuthContext.Provider
+      value={{ user, loading, googleSignIn, signUpWithEmail, logOut, loginWithGoogle, authLoading }}
+    >
       {children}
     </AuthContext.Provider>
   );
