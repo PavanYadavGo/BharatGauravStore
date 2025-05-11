@@ -1,64 +1,65 @@
-// context/AuthContext.tsx
 'use client';
 
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { createContext, useEffect, useState, useContext } from 'react';
-import { auth, db } from '../../helpers/firebaseConfig';
-import { doc, getDoc } from 'firebase/firestore';
+import { createContext, useContext, useEffect, useState } from 'react';
+import {
+  signInWithPopup,
+  onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signOut,
+  User,
+  UserCredential,
+} from 'firebase/auth';
+import { auth, googleProvider } from '../../lib/firebase';
 
-const AuthContext = createContext(null);
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  googleSignIn: () => Promise<UserCredential>;
+  signUpWithEmail: (email: string, password: string) => Promise<UserCredential>;
+  logOut: () => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
+}
 
-export const AuthProvider = ({ children }: any) => {
-  const [user, setUser] = useState<any>(null);
-  const [authLoading, setAuthLoading] = useState(true); // new loading state
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const googleSignIn = () => {
+    return signInWithPopup(auth, googleProvider); // returns Promise<UserCredential>
+  };
+
+  const signUpWithEmail = (email: string, password: string) => {
+    return createUserWithEmailAndPassword(auth, email, password); // returns Promise<UserCredential>
+  };
+
+  const logOut = () => {
+    return signOut(auth); // returns Promise<void>
+  };
+
+  const loginWithGoogle = async () => {
+    await signInWithPopup(auth, googleProvider);
+  };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        try {
-          const docRef = doc(db, 'users', user.uid);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            const userData = docSnap.data();
-            setUser({
-              uid: user.uid,
-              email: user.email,
-              username: userData.username,
-              photoURL: user.photoURL || null,
-            });
-          } else {
-            setUser({
-              uid: user.uid,
-              email: user.email,
-              photoURL: user.photoURL || null,
-            });
-          }
-        } catch (error) {
-          console.error('Error fetching user data from Firestore:', error);
-        }
-      } else {
-        setUser(null);
-      }
-      setAuthLoading(false); // mark auth as loaded
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
-  const logout = async () => {
-    try {
-      await signOut(auth);
-      setUser(null);
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
-
   return (
-    <AuthContext.Provider value={{ user, authLoading, logout }}>
+    <AuthContext.Provider value={{ user, loading, googleSignIn, signUpWithEmail, logOut, loginWithGoogle }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  return context;
+};

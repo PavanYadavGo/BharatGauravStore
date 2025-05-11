@@ -1,66 +1,119 @@
-"use client"
+'use client';
 
-import { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "../../helpers/firebaseConfig";
-import { doc, setDoc } from "firebase/firestore";
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import { useAuth } from '../context/AuthContext';
+import Image from 'next/image';
+import { FcGoogle } from 'react-icons/fc';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { db } from '../../lib/firebase'; // adjust if needed
+import { doc, setDoc } from 'firebase/firestore';
 
-export default function SignupPage() {
+export default function SignUpPage() {
+  const { googleSignIn, user, loading, signUpWithEmail } = useAuth();
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
-  const [address, setAddress] = useState("");
-  const [zip, setZip] = useState("");
-  const [phone, setPhone] = useState(""); // New state for phone
+  const [form, setForm] = useState({
+    email: '',
+    password: '',
+    fullName: '',
+    phone: '',
+    address: '',
+    zip: '',
+  });
+  const [error, setError] = useState('');
 
-  const handleSignup = async () => {
-    if (!email || !password || !username || !address || !zip || !phone) {
-      return toast.error("Please fill in all fields");
+  useEffect(() => {
+    if (!loading && user) {
+      router.push('/');
     }
-  
-    // Phone validation: Must be 10 digits and numeric
-    const phoneRegex = /^[0-9]{10}$/;
-    if (!phoneRegex.test(phone)) {
-      return toast.error("Phone number must be 10 digits");
-    }
-  
+  }, [user, loading, router]);
+
+  const handleGoogleSignup = async () => {
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-  
-      await setDoc(doc(db, "users", user.uid), {
-        email,
-        username,
-        address,
-        zip,
-        phone,
-        createdAt: new Date(),
-      });
-  
-      toast.success("Account created!");
-      router.push("/");
+      const result = await googleSignIn();
+      const uid = result.user.uid;
+
+      // Save missing fields to Firestore
+      await setDoc(doc(db, 'users', uid), {
+        fullName: '',
+        phone: '',
+        address: '',
+        zip: '',
+        email: result.user.email,
+      }, { merge: true });
+
+      router.push('/profile'); // or checkout form
     } catch (error: any) {
-      toast.error(error.message);
+      setError(error.message);
     }
   };
-  
+
+  const handleEmailSignup = async () => {
+    const { email, password, fullName, phone, address, zip } = form;
+    if (!fullName || !phone || !address || !zip) {
+      return setError('Please fill all fields');
+    }
+
+    try {
+      const result = await signUpWithEmail(email, password);
+      const uid = result.user.uid;
+
+      await setDoc(doc(db, 'users', uid), {
+        email,
+        fullName,
+        phone,
+        address,
+        zip,
+      });
+
+      router.push('/');
+    } catch (error: any) {
+      setError(error.message);
+    }
+  };
 
   return (
-    <div className="max-w-md mx-auto mt-16 p-6 bg-white rounded shadow">
-      <h2 className="text-2xl font-bold mb-6 text-center">Create an Account</h2>
-      <div className="space-y-4">
-        <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full p-3 border border-gray-300 rounded" />
-        <input type="text" placeholder="Address" value={address} onChange={(e) => setAddress(e.target.value)} className="w-full p-3 border border-gray-300 rounded" />
-        <input type="text" placeholder="Zip Code" value={zip} onChange={(e) => setZip(e.target.value)} className="w-full p-3 border border-gray-300 rounded" />
-        <input type="tel" placeholder="Phone Number" value={phone} onChange={(e) => {const value = e.target.value; if (/^\d{0,10}$/.test(value)) { setPhone(value); }}}className="w-full p-3 border border-gray-300 rounded"/>
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 border border-gray-300 rounded" />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 border border-gray-300 rounded" />
-        <button onClick={handleSignup} className="w-full bg-blue-600 text-white py-3 rounded font-semibold hover:bg-blue-700 transition">Sign Up</button>
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <Card className="w-full max-w-md p-6 shadow-md">
+        <CardContent>
+          <h2 className="text-2xl font-semibold text-center mb-6">Create an account</h2>
+          {error && <p className="text-red-500 text-sm text-center mb-2">{error}</p>}
+
+          {['fullName', 'phone', 'address', 'zip', 'email', 'password'].map((field, i) => (
+            <div className="mb-4" key={i}>
+              <Input
+                type={field === 'password' ? 'password' : 'text'}
+                placeholder={field === 'fullName' ? 'Full Name' : field.charAt(0).toUpperCase() + field.slice(1)}
+                value={form[field as keyof typeof form]}
+                onChange={(e) => setForm({ ...form, [field]: e.target.value })}
+              />
+            </div>
+          ))}
+
+          <Button className="w-full mb-4" onClick={handleEmailSignup}>
+            Sign up with Email
+          </Button>
+
+          <Button
+  variant="outline"
+  className="w-full flex items-center gap-2"
+  onClick={handleGoogleSignup}
+>
+  <FcGoogle size={20} />
+  Sign up with Google
+</Button>
+
+          <p className="text-sm text-center mt-4">
+            Already have an account?{' '}
+            <a href="/login" className="text-blue-500 hover:underline">
+              Log in
+            </a>
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }

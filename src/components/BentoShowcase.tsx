@@ -2,15 +2,15 @@
 
 import { BentoGrid, BentoGridItem } from "../components/ui/BentoGrid";
 import { Sparkles } from "lucide-react";
-import HeroSection from "../components/ImageSlider"; // or wherever your slider is
+import HeroSection from "../components/ImageSlider"; // Make sure the path is correct
 
 export default function BentoShowcase() {
   return (
     <section className="px-4 py-10 md:px-8 lg:px-16">
       <BentoGrid>
         <BentoGridItem
-          className="md:col-span-2 p-0 overflow-hidden" // removes padding for image slider
-          header={<HeroSection />} // use your image slider here
+          className="md:col-span-2 p-0 overflow-hidden"
+          header={<HeroSection />}
         />
         <BentoGridItem
           title="New Arrivals"
