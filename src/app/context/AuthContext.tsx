@@ -14,8 +14,8 @@ import { auth, googleProvider } from '../../lib/firebase';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  googleSignIn: () => Promise<UserCredential | void>;
-  signUpWithEmail: (email: string, password: string) => Promise<UserCredential | void>;
+  googleSignIn: () => Promise<UserCredential>;
+  signUpWithEmail: (email: string, password: string) => Promise<UserCredential>;
   logOut: () => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   authLoading: boolean;
@@ -26,9 +26,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [authLoading, setAuthLoading] = useState(false); // ✅ Correct placement
+  const [authLoading, setAuthLoading] = useState(false);
 
-  const googleSignIn = async () => {
+  const googleSignIn = async (): Promise<UserCredential> => {
     setAuthLoading(true);
     try {
       return await signInWithPopup(auth, googleProvider);
@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const signUpWithEmail = async (email: string, password: string) => {
+  const signUpWithEmail = async (email: string, password: string): Promise<UserCredential> => {
     setAuthLoading(true);
     try {
       return await createUserWithEmailAndPassword(auth, email, password);

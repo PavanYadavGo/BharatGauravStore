@@ -1,14 +1,13 @@
 'use client';
 
 import { useAuth } from '../context/AuthContext';
-import Image from 'next/image';
-import { FcGoogle } from 'react-icons/fc';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { db } from '../../lib/firebase'; // adjust if needed
+import { FcGoogle } from 'react-icons/fc';
+import { db } from '../../lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 
 export default function SignUpPage() {
@@ -34,18 +33,22 @@ export default function SignUpPage() {
   const handleGoogleSignup = async () => {
     try {
       const result = await googleSignIn();
+
       const uid = result.user.uid;
 
-      // Save missing fields to Firestore
-      await setDoc(doc(db, 'users', uid), {
-        fullName: '',
-        phone: '',
-        address: '',
-        zip: '',
-        email: result.user.email,
-      }, { merge: true });
+      await setDoc(
+        doc(db, 'users', uid),
+        {
+          fullName: '',
+          phone: '',
+          address: '',
+          zip: '',
+          email: result.user.email,
+        },
+        { merge: true }
+      );
 
-      router.push('/profile'); // or checkout form
+      router.push('/profile');
     } catch (error: any) {
       setError(error.message);
     }
@@ -98,13 +101,13 @@ export default function SignUpPage() {
           </Button>
 
           <Button
-  variant="outline"
-  className="w-full flex items-center gap-2"
-  onClick={handleGoogleSignup}
->
-  <FcGoogle size={20} />
-  Sign up with Google
-</Button>
+            variant="outline"
+            className="w-full flex items-center gap-2"
+            onClick={handleGoogleSignup}
+          >
+            <FcGoogle size={20} />
+            Sign up with Google
+          </Button>
 
           <p className="text-sm text-center mt-4">
             Already have an account?{' '}
