@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getDocs, productsCollection } from "../helpers/firebaseConfig";
+import { useRouter, usePathname } from 'next/navigation';
 import { useCart } from "../app/context/CartContext";
 import ProductDrawer from "../components/ProductDrawer";
 import {
@@ -27,6 +28,7 @@ export default function FeaturedProducts({ selectedCategory = "All" }: { selecte
   const [products, setProducts] = useState<any[]>([]);
   const [animating, setAnimating] = useState<{ [key: string]: boolean }>({});
   const [drawerProductId, setDrawerProductId] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -50,6 +52,12 @@ export default function FeaturedProducts({ selectedCategory = "All" }: { selecte
 
     fetchProducts();
   }, []);
+
+    const handleBuyNow = (product: any) => {
+        addToCart({ ...product, quantity: 1 });
+        toast.success(`${product.name} added to cart`);
+        router.push('/checkout');
+      }
 
   const filteredProducts =
     selectedCategory === "All"
@@ -126,7 +134,7 @@ export default function FeaturedProducts({ selectedCategory = "All" }: { selecte
 
             <button
   onClick={() => handleAddToCart(product)}
-  className={`mt-auto w-full py-2 px-4 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition duration-300 border ${
+  className={`w-full mb-2 py-2 px-4 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition duration-300 border ${
     animating[product.id]
       ? "bg-black text-white border-black scale-105"
       : "bg-white text-black border-gray-800 hover:bg-black hover:text-white"
@@ -141,7 +149,15 @@ export default function FeaturedProducts({ selectedCategory = "All" }: { selecte
       <FaShoppingCart size={14} /> Add to Cart
     </>
   )}
-            </button>
+</button>
+
+{/* New Buy Now Button */}
+<button
+  onClick={() => handleBuyNow(product)}
+  className="w-full py-2 px-4 rounded-lg text-sm font-medium flex items-center justify-center gap-2 bg-orange-600 text-white hover:bg-orange-700 transition"
+>
+  <FaRupeeSign size={14} /> Buy Now
+</button>
           </div>
         </div>
       );

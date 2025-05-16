@@ -231,105 +231,145 @@ const RazorpayCheckout = () => {
   };
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-gradient-to-br from-[#f4f7fa] to-[#dceefb] dark:from-gray-900 dark:to-gray-800 p-4 sm:p-6">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto mt-20">
-        {/* Cart Summary */}
-        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6">
-          <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">🛒 Your Cart</h2>
+    <main className="min-h-screen overflow-x-hidden bg-gray-100 dark:bg-gray-900 py-10">
+      <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Order Preview */}
+        <div className="rounded-lg p-6 bg-gray-50 dark:bg-gray-700">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Order Preview</h2>
           {cart.length === 0 ? (
             <p className="text-gray-600 dark:text-gray-300">Your cart is empty.</p>
           ) : (
-            <div className="max-h-[400px] overflow-y-auto space-y-4 pr-2">
-              {cart.map((item, index) => (
-                <div key={index} className="flex flex-col sm:flex-row gap-4 border-b pb-4">
-                  <img
-                    src={item.images?.[0] || '/placeholder.jpg'}
-                    alt={item.name}
-                    className="w-full sm:w-24 h-24 object-cover rounded-md"
-                  />
-                  <div className="flex flex-col justify-center">
-                    <h3 className="font-semibold text-gray-800 dark:text-white">{item.name}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">₹{item.price}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">Qty: {item.quantity}</p>
-                  </div>
+            <div className="space-y-4">
+{cart.map((item) => (
+                <div key={item.id} className="flex items-center border-b border-gray-200 dark:border-gray-600 pb-2">
+                  {/* Increased width and height for better visibility */}
+                  <div className="w-24 h-24 rounded-md overflow-hidden mr-4 flex-shrink-0">
+                    <img
+                      src={item.images?.[0] || '/placeholder.jpg'}
+                      alt={item.name}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-gray-800 dark:text-white font-medium">{item.name}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      ₹{item.price} x {item.quantity} = ₹{item.price * item.quantity}
+                    </p>
+                </div>
+                </div>
+              ))}
+              <div className="pt-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-gray-700 dark:text-gray-300 font-semibold">Total:</span>
+                  <span className="text-green-600 font-bold text-lg">₹{getTotalPrice()}</span>
                 </div>
-              ))}
+              </div>
             </div>
           )}
         </div>
 
         {/* Checkout Form */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 flex flex-col justify-between h-full">
-          <div>
-            <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Checkout</h2>
-            <div className="grid gap-4">
+        <div className="rounded-lg p-6 bg-gray-50 dark:bg-gray-700">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Checkout Details</h2>
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="buyerName" className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
+                Full Name
+              </label>
               <input
                 type="text"
+                id="buyerName"
                 name="buyerName"
-                placeholder="Full Name"
+                placeholder="Your Full Name"
                 value={form.buyerName}
                 onChange={handleChange}
-                className="input-style"
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-white leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-800 dark:border-gray-600"
               />
+            </div>
+            <div>
+              <label htmlFor="buyerEmail" className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
+                Email Address
+              </label>
               <input
                 type="email"
+                id="buyerEmail"
                 name="buyerEmail"
                 value={form.buyerEmail}
                 disabled
-                className="input-style bg-gray-100 text-gray-500 cursor-not-allowed"
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-500 dark:text-gray-400 leading-tight focus:outline-none focus:shadow-outline bg-gray-100 dark:bg-gray-700 cursor-not-allowed"
               />
+            </div>
+            <div>
+              <label htmlFor="contactNumber" className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
+                Contact Number
+              </label>
               <input
                 type="tel"
+                id="contactNumber"
                 name="contactNumber"
-                placeholder="Contact Number"
+                placeholder="Your Contact Number"
                 value={form.contactNumber}
                 onChange={handleChange}
-                className="input-style"
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-white leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-800 dark:border-gray-600"
               />
+            </div>
+            <div>
+              <label htmlFor="address" className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
+                Shipping Address
+              </label>
               <input
                 type="text"
+                id="address"
                 name="address"
-                placeholder="Address"
+                placeholder="Your Shipping Address"
                 value={form.address}
                 onChange={handleChange}
-                className="input-style"
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-white leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-800 dark:border-gray-600"
               />
+            </div>
+            <div>
+              <label htmlFor="zipCode" className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
+                ZIP Code
+              </label>
               <input
                 type="text"
+                id="zipCode"
                 name="zipCode"
-                placeholder="ZIP Code"
+                placeholder="Your ZIP Code"
                 value={form.zipCode}
                 onChange={handleChange}
-                className="input-style"
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-white leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-800 dark:border-gray-600"
               />
+            </div>
+            <div>
+              <label htmlFor="paymentMethod" className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
+                Payment Method
+              </label>
               <select
+                id="paymentMethod"
                 name="paymentMethod"
                 value={form.paymentMethod}
                 onChange={handleChange}
-                className="input-style"
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-white leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-800 dark:border-gray-600"
               >
                 <option value="cod">Cash on Delivery</option>
                 <option value="online">Razorpay</option>
               </select>
-              <ReCAPTCHA
-                sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
-                ref={recaptchaRef}
-                onChange={handleRecaptchaChange}
-                className="mt-2"
-              />
             </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
-            <span className="text-xl font-semibold text-green-600">Total: ₹{getTotalPrice()}</span>
+            <ReCAPTCHA
+              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
+              ref={recaptchaRef}
+              onChange={handleRecaptchaChange}
+              className="mt-4"
+            />
             <button
               onClick={handleConfirmPurchase}
-              disabled={loading}
-              className={`w-full sm:w-auto bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold text-lg px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition duration-300 ${
-                loading ? 'opacity-50 cursor-not-allowed' : ''
+              disabled={loading || !captchaVerified}
+              className={`w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold py-3 rounded-md shadow-md hover:shadow-lg transition duration-300 mt-4 ${
+                loading || !captchaVerified ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
-              {loading ? 'Processing...' : 'Buy Now'}
+              {loading ? 'Processing...' : 'Confirm Purchase'}
             </button>
           </div>
         </div>

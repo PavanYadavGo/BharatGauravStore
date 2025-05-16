@@ -1,234 +1,173 @@
-"use client";
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../helpers/firebaseConfig";
-import Image from "next/image";
-import { FaTimes, FaShoppingBag, FaRocket } from "react-icons/fa";
-import { useCart } from "../app/context/CartContext";
-import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
-import { FaRupeeSign } from "react-icons/fa";
+'use client';
 
-export default function ProductDrawer({
-  productId,
-  onClose,
-}: {
+import { useEffect, useState } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import { useCart } from '@/app/context/CartContext';
+
+type ProductDetailProps = {
   productId: string;
   onClose: () => void;
-}) {
-  const [product, setProduct] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [quantity, setQuantity] = useState(1);
-  const { addToCart } = useCart();
+};
+
+type Product = {
+  id: string; // Add the id property here to match CartContext's Product type
+  name: string;
+  description: string;
+  price: number;
+  images: string[];
+};
+
+export default function ProductDetail({ productId, onClose }: ProductDetailProps) {
+  const [product, setProduct] = useState<Product | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const router = useRouter();
-  const [isClosing, setIsClosing] = useState(false);
-  const [mainImage, setMainImage] = useState<string | null>(null);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchProduct = async () => {
-      setLoading(true);
-      const docRef = doc(db, "products", productId);
+      const docRef = doc(db, 'products', productId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        setProduct(docSnap.data());
-        if (docSnap.data()?.images && docSnap.data().images.length > 0) {
-          setMainImage(docSnap.data().images[0]);
-        } else {
-          setMainImage("/placeholder.png");
-        }
+        const data = docSnap.data() as Omit<Product, 'id'>; // Temporarily omit id during fetching
+        setProduct({ id: docSnap.id, ...data }); // Include the document ID as the product id
+        setSelectedImage(data.images?.[0] || null);
       }
-      setLoading(false);
     };
 
-    fetchProduct();
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
+    if (productId) fetchProduct();
   }, [productId]);
 
-  const handleAddToCart = () => {
-    if (!product) return;
-    addToCart({ ...product, id: productId, quantity });
-    toast.success(`${product.name} added to cart`);
-    closeDrawer();
-  };
+  if (!product) return null;
 
   const handleBuyNow = () => {
-    if (!product) return;
-    addToCart({ ...product, id: productId, quantity });
-    router.push("/checkout");
-    closeDrawer();
+    if (product) {
+      addToCart({ ...product, quantity: 1 });
+      router.push('/checkout');
+      onClose();
+    }
   };
 
-  const closeDrawer = () => {
-    setIsClosing(true);
-    setTimeout(onClose, 300);
-  };
-
-  const handleSwapImage = (imageUrl: string) => {
-    setMainImage(imageUrl);
-  };
-
-  return createPortal(
-    <>
+  return (
+    <div className="fixed inset-0 z-50">
       {/* Backdrop */}
-      <div
-        onClick={closeDrawer}
-        className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40"
+      <motion.div
+        className="absolute inset-0 bg-black/50"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
       />
 
       {/* Drawer */}
-      <div
-        className={`fixed top-0 right-0 w-full md:w-1/2 h-full bg-white z-50 shadow-md transform transition-transform duration-300 ease-in-out overflow-y-auto rounded-l-lg ${
-          isClosing ? "animate-slide-out" : "animate-slide-in"
-        }`}
+      <motion.div
+        className="absolute top-0 right-0 h-full w-full md:w-4/5 bg-white dark:bg-gray-900 shadow-2xl overflow-y-auto rounded-l-xl"
+        initial={{ x: '100%' }}
+        animate={{ x: 0 }}
+        exit={{ x: '100%' }}
+        transition={{ type: 'tween', duration: 0.3 }}
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
-        <button
-          onClick={closeDrawer}
-          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition"
-        >
-          <FaTimes className="h-6 w-6" />
-        </button>
-
-        <div className="p-6 pt-12 space-y-4 flex flex-col h-full">
-          {loading ? (
-            <p className="text-center text-gray-400">Loading...</p>
-          ) : product ? (
-            <div className="flex flex-col h-full">
-              {/* Main Image Section */}
-              <div className="w-full aspect-square relative rounded-md overflow-hidden bg-gray-100 shadow-sm">
-                <Image
-                  src={mainImage || "/placeholder.png"}
-                  alt={product.name}
-                  fill
-                  className="object-contain p-4"
-                  style={{ objectFit: "contain" }}
-                />
-              </div>
-
-              {/* Other Details Section */}
-              <div className="mt-4 flex flex-col flex-grow space-y-4">
-                {/* Thumbnail Images */}
-                {Array.isArray(product.images) && product.images.length > 1 && (
-                  <div className="flex overflow-x-auto scroll-smooth">
-                    {product.images.map((imageUrl: string, index: number) => (
-                      <div
-                        key={`extra-image-${index}`}
-                        className={`w-20 h-20 relative rounded-md overflow-hidden bg-gray-100 mr-2 last:mr-0 shadow-sm cursor-pointer opacity-70 hover:opacity-100 transition-opacity duration-200 ${
-                          mainImage === imageUrl ? "border-2 border-gray-400" : ""
-                        }`}
-                        onClick={() => handleSwapImage(imageUrl)}
-                      >
-                        <Image
-                          src={imageUrl}
-                          alt={`${product.name} - Thumbnail ${index + 1}`}
-                          fill
-                          className="object-cover"
-                          style={{ objectFit: "cover" }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Product Information */}
-                <div className="space-y-2">
-                  <h2 className="text-xl font-semibold text-gray-800">
-                    {product.name}
-                  </h2>
-
-                  <p className="text-lg font-medium text-gray-700 flex items-center gap-1">
-                    <FaRupeeSign className="text-gray-500" size={16} />
-                    {product.price}
-                  </p>
-
-                  <p className="text-gray-500 text-sm">
-                    {product.description || "No description available."}
-                  </p>
-                </div>
-
-                {/* Quantity Selector */}
-                <div className="flex items-center gap-3">
-                  <label
-                    htmlFor="quantity"
-                    className="text-sm font-medium text-gray-600"
-                  >
-                    Quantity:
-                  </label>
-                  <input
-                    id="quantity"
-                    type="number"
-                    min={1}
-                    value={quantity}
-                    onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-                    className="w-16 px-2 py-1 border border-gray-300 rounded-md text-center text-gray-700"
-                  />
-                </div>
-
-                {/* Buttons */}
-                <div className="flex flex-col gap-2">
-                  <button
-                    onClick={handleAddToCart}
-                    className="w-full py-2 px-4 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-md flex items-center justify-center gap-2 transition duration-200"
-                  >
-                    <FaShoppingBag className="h-5 w-5" /> Add to Cart
-                  </button>
-
-                  <button
-                    onClick={handleBuyNow}
-                    className="w-full py-2 px-4 bg-gray-400 hover:bg-gray-500 text-white font-semibold rounded-md flex items-center justify-center gap-2 transition duration-200"
-                  >
-                    <FaRocket className="h-5 w-5" /> Buy Now
-                  </button>
-                </div>
-
-                {/* Product Details (Example - you can customize this) */}
-                <div className="mt-4 space-y-2">
-                  <h3 className="text-md font-semibold text-gray-700">Product Details</h3>
-                  <ul className="list-disc pl-5 text-gray-500 text-sm">
-                    <li>High-quality materials</li>
-                    <li>Durable and long-lasting</li>
-                    <li>Perfect for daily use</li>
-                    <li>Available in various sizes</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <p className="text-center text-gray-400">Product not found.</p>
-          )}
+        {/* Header */}
+        <div className="flex justify-between items-center p-5 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Product Details</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-800 dark:hover:text-white text-2xl"
+          >
+            &times;
+          </button>
         </div>
-      </div>
 
-      {/* Slide animation */}
-      <style jsx global>{`
-        @keyframes slide-in {
-          from {
-            transform: translateX(100%);
-          }
-          to {
-            transform: translateX(0%);
-          }
-        }
-        @keyframes slide-out {
-          from {
-            transform: translateX(0%);
-          }
-          to {
-            transform: translateX(100%);
-          }
-        }
-        .animate-slide-in {
-          animation: slide-in 0.3s ease-out forwards;
-        }
-        .animate-slide-out {
-          animation: slide-out 0.3s ease-in forwards;
-        }
-      `}</style>
-    </>,
-    document.body
+        {/* Main Layout */}
+        <div className="flex flex-col md:flex-row gap-10 p-6">
+          {/* Left Section: Images */}
+          <div className="md:w-1/2 flex flex-col items-center">
+            {/* Main Image */}
+            <motion.div
+              className="relative w-full h-80 bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4 }}
+            >
+              {selectedImage && (
+                <Image
+                  src={selectedImage}
+                  alt="Selected product"
+                  layout="fill"
+                  objectFit="contain"
+                />
+              )}
+            </motion.div>
+
+            {/* Thumbnails */}
+            <div className="flex gap-3 overflow-x-auto mt-4">
+              {product.images.map((img, i) => (
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  key={i}
+                  onClick={() => setSelectedImage(img)}
+                  className={`w-20 h-20 border rounded-lg overflow-hidden cursor-pointer transition-all ${
+                    selectedImage === img
+                      ? 'ring-2 ring-gray-900 dark:ring-white'
+                      : 'border-gray-300 dark:border-gray-700'
+                  }`}
+                >
+                  <Image
+                    src={img}
+                    alt={`Thumbnail ${i + 1}`}
+                    width={80}
+                    height={80}
+                    className="object-cover w-full h-full"
+                  />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Section: Details */}
+          <div className="md:w-1/2 space-y-4">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{product.name}</h1>
+            <p className="text-gray-700 dark:text-gray-300 text-lg">{product.description}</p>
+
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              ₹ {product.price.toFixed(2)}
+            </div>
+
+            {/* Buttons */}
+            <div className="flex flex-col gap-3 pt-6">
+              {/* Add to Cart */}
+              <motion.div whileTap={{ scale: 0.97 }}>
+                <Button
+                  className="w-full bg-gray-800 hover:bg-gray-700 text-white rounded-xl py-3 text-lg"
+                  onClick={() => {
+                    if (product) {
+                      addToCart(product);
+                    }
+                  }}
+                >
+                  Add to Cart
+                </Button>
+              </motion.div>
+
+              {/* Buy Now */}
+              <motion.div whileTap={{ scale: 0.97 }}>
+                <Button
+                  className="w-full bg-blue-600 hover:bg-blue-500 text-white rounded-xl py-3 text-lg"
+                  onClick={handleBuyNow}
+                >
+                  Buy Now
+                </Button>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </div>
   );
 }
