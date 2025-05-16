@@ -189,27 +189,42 @@ const Navbar = () => {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Avatar>
-                  <AvatarImage src={user.photoURL || ''} />
-                  <AvatarFallback>
-                    {(user.displayName?.[0] || user.email?.[0] || 'U').toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+              <Avatar>
+  <AvatarImage
+    src={user.photoURL ?? undefined}
+    alt={user.displayName || 'User'}
+    referrerPolicy="no-referrer"
+  />
+  <AvatarFallback>
+    {(user.displayName?.[0] || user.email?.[0] || 'U').toUpperCase()}
+  </AvatarFallback>
+</Avatar>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setDarkMode(!darkMode)}>
-                  {darkMode ? <FaSun className="mr-2" /> : <FaMoon className="mr-2" />}
-                  {darkMode ? 'Light Mode' : 'Dark Mode'}
-                </DropdownMenuItem>
-                <Link href="/orders">
-                  <DropdownMenuItem>
-                    <FaClipboardList className="mr-2 text-blue-500" /> Order History
-                  </DropdownMenuItem>
-                </Link>
-                <DropdownMenuItem onClick={handleLogout} className="text-red-500">
-                  <FiLogOut className="mr-2" /> Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
+              <DropdownMenuContent align="end" className="w-56">
+  <div className="px-3 py-2 border-b">
+    <p className="text-sm font-medium truncate">
+      {user.displayName || user.email}
+    </p>
+  </div>
+  <DropdownMenuItem onClick={() => setDarkMode(!darkMode)}>
+    {darkMode ? <FaSun className="mr-2" /> : <FaMoon className="mr-2" />}
+    {darkMode ? 'Light Mode' : 'Dark Mode'}
+  </DropdownMenuItem>
+  <Link href="/orders">
+    <DropdownMenuItem>
+      <FaClipboardList className="mr-2 text-blue-500" /> Order History
+    </DropdownMenuItem>
+  </Link>
+  <Link href="/profile">
+  <DropdownMenuItem>
+    ✏️ Edit Profile
+  </DropdownMenuItem>
+</Link>
+  <DropdownMenuItem onClick={handleLogout} className="text-red-500">
+    <FiLogOut className="mr-2" /> Logout
+  </DropdownMenuItem>
+</DropdownMenuContent>
+
             </DropdownMenu>
           ) : (
             <div className="hidden md:flex space-x-3">
