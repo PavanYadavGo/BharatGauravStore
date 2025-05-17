@@ -1,14 +1,15 @@
-// Final refactored Navbar with ShadCN UI and modern design
-
 'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useCart } from '@/app/context/CartContext';
 import { useAuth } from '@/app/context/AuthContext';
-import { FaShoppingCart, FaTrash, FaClipboardList, FaMoon, FaSun } from 'react-icons/fa';
+import {
+  FaShoppingCart, FaTrash, FaClipboardList,
+  FaMoon, FaSun, FaUserEdit,
+} from 'react-icons/fa';
 import { FiLogOut } from 'react-icons/fi';
 import {
   NavigationMenu,
@@ -26,6 +27,8 @@ import {
   Sheet,
   SheetTrigger,
   SheetContent,
+  SheetHeader,
+  SheetTitle,
 } from '@/components/ui/sheet';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -36,7 +39,6 @@ const Navbar = () => {
   const { cart, removeFromCart, increaseQuantity, decreaseQuantity, getTotalPrice } = useCart();
   const { user, logOut } = useAuth();
   const router = useRouter();
-  const pathname = usePathname();
 
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme');
@@ -63,7 +65,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur bg-white/70 dark:bg-gray-900/70 border-b">
+    <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur dark:bg-gray-900/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="text-2xl font-bold text-[#ff6740] tracking-tight">
@@ -98,6 +100,9 @@ const Navbar = () => {
               ☰
             </SheetTrigger>
             <SheetContent side="left">
+              <SheetHeader>
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+              </SheetHeader>
               <nav className="flex flex-col space-y-4 mt-6">
                 {[['Home', '/'], ['About Us', '/about'], ['Products', '/products'], ['Contact Us', '/contact']].map(
                   ([label, path]) => (
@@ -189,42 +194,41 @@ const Navbar = () => {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-              <Avatar>
-  <AvatarImage
-    src={user.photoURL ?? undefined}
-    alt={user.displayName || 'User'}
-    referrerPolicy="no-referrer"
-  />
-  <AvatarFallback>
-    {(user.displayName?.[0] || user.email?.[0] || 'U').toUpperCase()}
-  </AvatarFallback>
-</Avatar>
+                <Avatar>
+                  <AvatarImage
+                    src={user.photoURL ?? undefined}
+                    alt={user.displayName || 'User'}
+                    referrerPolicy="no-referrer"
+                  />
+                  <AvatarFallback>
+                    {(user.displayName?.[0] || user.email?.[0] || 'U').toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-  <div className="px-3 py-2 border-b">
-    <p className="text-sm font-medium truncate">
-      {user.displayName || user.email}
-    </p>
-  </div>
-  <DropdownMenuItem onClick={() => setDarkMode(!darkMode)}>
-    {darkMode ? <FaSun className="mr-2" /> : <FaMoon className="mr-2" />}
-    {darkMode ? 'Light Mode' : 'Dark Mode'}
-  </DropdownMenuItem>
-  <Link href="/orders">
-    <DropdownMenuItem>
-      <FaClipboardList className="mr-2 text-blue-500" /> Order History
-    </DropdownMenuItem>
-  </Link>
-  <Link href="/profile">
-  <DropdownMenuItem>
-    ✏️ Edit Profile
-  </DropdownMenuItem>
-</Link>
-  <DropdownMenuItem onClick={handleLogout} className="text-red-500">
-    <FiLogOut className="mr-2" /> Logout
-  </DropdownMenuItem>
-</DropdownMenuContent>
-
+                <div className="px-3 py-2 border-b">
+                  <p className="text-sm font-medium truncate">
+                    {user.displayName || user.email}
+                  </p>
+                </div>
+                <DropdownMenuItem onClick={() => setDarkMode(!darkMode)}>
+                  {darkMode ? <FaSun className="mr-2" /> : <FaMoon className="mr-2" />}
+                  {darkMode ? 'Light Mode' : 'Dark Mode'}
+                </DropdownMenuItem>
+                <Link href="/orders">
+                  <DropdownMenuItem>
+                    <FaClipboardList className="mr-2 text-blue-500" /> Order History
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/profile">
+                  <DropdownMenuItem>
+                    <FaUserEdit className="mr-2 text-blue-500" /> Edit Profile
+                  </DropdownMenuItem>
+                </Link>
+                <DropdownMenuItem onClick={handleLogout} className="text-red-500">
+                  <FiLogOut className="mr-2" /> Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <div className="hidden md:flex space-x-3">

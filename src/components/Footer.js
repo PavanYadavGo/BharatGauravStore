@@ -1,29 +1,39 @@
+'use client';
+
+import { Separator } from '@/components/ui/separator';
+
 export default function Footer() {
+  const year = new Date().getFullYear();
+
   return (
-    <footer className="bg-gray-200 text-gray-800 dark:bg-gray-900 dark:text-white py-6 mt-10 transition-colors duration-300">
-      <div className="container mx-auto text-center">
-        <p className="text-sm">
-          &copy; {new Date().getFullYear()} BHARATGAURAV. All rights reserved.
-        </p>
-        <p className="mt-2">
-          <a href="https://bharatgauravshop.com/privacy-policy" className="hover:underline dark:hover:text-blue-400">
+    <footer className="bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 px-6 py-8 mt-10">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+        {/* Left Side */}
+        <div className="text-center md:text-left text-sm">
+          &copy; {year} <span className="font-semibold text-[#ff6740]">BHARATGAURAV</span>. All rights reserved.
+        </div>
+
+        {/* Separator for small screens */}
+        <Separator className="block md:hidden" />
+
+        {/* Right Side Links */}
+        <div className="flex flex-wrap justify-center md:justify-end gap-3 text-sm">
+          <a href="https://bharatgauravshop.com/privacy-policy" className="hover:underline hover:text-[#ff6740] transition-colors">
             Privacy Policy
-          </a>{" "}
-          |{" "}
-          <a href="https://bharatgauravshop.com/terms-and-conditions" className="hover:underline ml-2 dark:hover:text-blue-400">
+          </a>
+          <a href="https://bharatgauravshop.com/terms-and-conditions" className="hover:underline hover:text-[#ff6740] transition-colors">
             Terms of Service
           </a>
-          <a href="https://bharatgauravshop.com/ShippingPolicy" className="hover:underline ml-2 dark:hover:text-blue-400">
-            ShippingPolicy
+          <a href="https://bharatgauravshop.com/ShippingPolicy" className="hover:underline hover:text-[#ff6740] transition-colors">
+            Shipping Policy
           </a>
-          <a href="https://bharatgauravshop.com/ReturnPolicy" className="hover:underline ml-2 dark:hover:text-blue-400">
-          ReturnPolicy
+          <a href="https://bharatgauravshop.com/ReturnPolicy" className="hover:underline hover:text-[#ff6740] transition-colors">
+            Return Policy
           </a>
-          ReturnPolicy
-          <a href="https://bharatgauravshop.com/RefundPolicy" className="hover:underline ml-2 dark:hover:text-blue-400">
-          RefundPolicy
+          <a href="https://bharatgauravshop.com/RefundPolicy" className="hover:underline hover:text-[#ff6740] transition-colors">
+            Refund Policy
           </a>
-        </p>
+        </div>
       </div>
     </footer>
   );

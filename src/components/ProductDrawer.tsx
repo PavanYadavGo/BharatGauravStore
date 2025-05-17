@@ -15,7 +15,7 @@ type ProductDetailProps = {
 };
 
 type Product = {
-  id: string; // Add the id property here to match CartContext's Product type
+  id: string;
   name: string;
   description: string;
   price: number;
@@ -33,8 +33,8 @@ export default function ProductDetail({ productId, onClose }: ProductDetailProps
       const docRef = doc(db, 'products', productId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        const data = docSnap.data() as Omit<Product, 'id'>; // Temporarily omit id during fetching
-        setProduct({ id: docSnap.id, ...data }); // Include the document ID as the product id
+        const data = docSnap.data() as Omit<Product, 'id'>;
+        setProduct({ id: docSnap.id, ...data });
         setSelectedImage(data.images?.[0] || null);
       }
     };
@@ -54,7 +54,6 @@ export default function ProductDetail({ productId, onClose }: ProductDetailProps
 
   return (
     <div className="fixed inset-0 z-50">
-      {/* Backdrop */}
       <motion.div
         className="absolute inset-0 bg-black/50"
         initial={{ opacity: 0 }}
@@ -62,8 +61,6 @@ export default function ProductDetail({ productId, onClose }: ProductDetailProps
         exit={{ opacity: 0 }}
         onClick={onClose}
       />
-
-      {/* Drawer */}
       <motion.div
         className="absolute top-0 right-0 h-full w-full md:w-4/5 bg-white dark:bg-gray-900 shadow-2xl overflow-y-auto rounded-l-xl"
         initial={{ x: '100%' }}
@@ -72,7 +69,6 @@ export default function ProductDetail({ productId, onClose }: ProductDetailProps
         transition={{ type: 'tween', duration: 0.3 }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="flex justify-between items-center p-5 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Product Details</h2>
           <button
@@ -83,11 +79,8 @@ export default function ProductDetail({ productId, onClose }: ProductDetailProps
           </button>
         </div>
 
-        {/* Main Layout */}
         <div className="flex flex-col md:flex-row gap-10 p-6">
-          {/* Left Section: Images */}
           <div className="md:w-1/2 flex flex-col items-center">
-            {/* Main Image */}
             <motion.div
               className="relative w-full h-80 bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden"
               initial={{ opacity: 0, scale: 0.95 }}
@@ -104,7 +97,6 @@ export default function ProductDetail({ productId, onClose }: ProductDetailProps
               )}
             </motion.div>
 
-            {/* Thumbnails */}
             <div className="flex gap-3 overflow-x-auto mt-4">
               {product.images.map((img, i) => (
                 <motion.div
@@ -130,7 +122,6 @@ export default function ProductDetail({ productId, onClose }: ProductDetailProps
             </div>
           </div>
 
-          {/* Right Section: Details */}
           <div className="md:w-1/2 space-y-4">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{product.name}</h1>
             <p className="text-gray-700 dark:text-gray-300 text-lg">{product.description}</p>
@@ -139,24 +130,18 @@ export default function ProductDetail({ productId, onClose }: ProductDetailProps
               ₹ {product.price.toFixed(2)}
             </div>
 
-            {/* Buttons */}
-            <div className="flex flex-col gap-3 pt-6">
-              {/* Add to Cart */}
-              <motion.div whileTap={{ scale: 0.97 }}>
+            {/* Buttons side by side */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-6">
+              <motion.div className="w-full sm:w-1/2" whileTap={{ scale: 0.97 }}>
                 <Button
                   className="w-full bg-gray-800 hover:bg-gray-700 text-white rounded-xl py-3 text-lg"
-                  onClick={() => {
-                    if (product) {
-                      addToCart(product);
-                    }
-                  }}
+                  onClick={() => addToCart(product)}
                 >
                   Add to Cart
                 </Button>
               </motion.div>
 
-              {/* Buy Now */}
-              <motion.div whileTap={{ scale: 0.97 }}>
+              <motion.div className="w-full sm:w-1/2" whileTap={{ scale: 0.97 }}>
                 <Button
                   className="w-full bg-blue-600 hover:bg-blue-500 text-white rounded-xl py-3 text-lg"
                   onClick={handleBuyNow}
