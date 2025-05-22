@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image'; // Added: Import Next.js Image component
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../../helpers/firebaseConfig';
@@ -240,24 +241,27 @@ const RazorpayCheckout = () => {
             <p className="text-gray-600 dark:text-gray-300">Your cart is empty.</p>
           ) : (
             <div className="space-y-4">
-{cart.map((item) => (
-                <div key={item.id} className="flex items-center border-b border-gray-200 dark:border-gray-600 pb-2">
-                  {/* Increased width and height for better visibility */}
-                  <div className="w-24 h-24 rounded-md overflow-hidden mr-4 flex-shrink-0">
-                    <img
-                      src={item.images?.[0] || '/placeholder.jpg'}
-                      alt={item.name}
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-gray-800 dark:text-white font-medium">{item.name}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      ₹{item.price} x {item.quantity} = ₹{item.price * item.quantity}
-                    </p>
-                </div>
-                </div>
-              ))}
+              {cart.map((item) => (
+                <div key={item.id} className="flex items-center border-b border-gray-200 dark:border-gray-600 pb-2">
+                  {/* Increased width and height for better visibility */}
+                  <div className="w-24 h-24 rounded-md overflow-hidden mr-4 flex-shrink-0">
+                    {/* Fixed: Replaced <img> with <Image> from next/image */}
+                    <Image
+                      src={item.images?.[0] || '/placeholder.jpg'}
+                      alt={item.name}
+                      width={96} // Added: Required width for next/image
+                      height={96} // Added: Required height for next/image
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-gray-800 dark:text-white font-medium">{item.name}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      ₹{item.price} x {item.quantity} = ₹{item.price * item.quantity}
+                    </p>
+                  </div>
+                </div>
+              ))}
               <div className="pt-4">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-gray-700 dark:text-gray-300 font-semibold">Total:</span>

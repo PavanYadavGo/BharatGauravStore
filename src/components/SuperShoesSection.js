@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import Image from "next/image"; // Added: Import Next.js Image component
 import { FaShippingFast, FaLock, FaHeadset } from "react-icons/fa";
 
 const SuperShoesSection = () => {
@@ -26,9 +27,12 @@ const SuperShoesSection = () => {
 
         {/* Right Image */}
         <div>
-          <img
+          {/* Fixed: Replaced <img> with <Image> from next/image */}
+          <Image
             src="/assets/big-shoe2.jpg"
             alt="Premium Shoe Clip"
+            width={450} // Added: Required width for next/image (based on md:w-[450px])
+            height={450} // Added: Assumed a square aspect ratio for placeholder
             className="rounded-3xl w-[350px] md:w-[450px]"
           />
         </div>

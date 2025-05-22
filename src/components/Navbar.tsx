@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/app/context/CartContext';
-import { useAuth } from '@/app/context/AuthContext'; // Corrected path to AuthContext
+import { useAuth } from '@/app/context/AuthContext';
 import { FaShoppingCart, FaTrash, FaClipboardList, FaMoon, FaSun, FaUserEdit, FaSearch } from 'react-icons/fa';
 import { FiLogOut } from 'react-icons/fi';
 import { NavigationMenu, NavigationMenuItem, NavigationMenuList, NavigationMenuLink } from '../components/ui/navigation-menu';
@@ -219,7 +219,11 @@ const Navbar = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Avatar>
-                    <AvatarImage src={user.photoURL ?? undefined} alt={user.displayName || 'User'} referrerPolicy="no-referrer" />
+                    <AvatarImage
+                      src={user.photoURL ?? undefined}
+                      alt={user.displayName || 'User'}
+                      referrerPolicy={`no-referrer`}
+                    />
                     <AvatarFallback>{(user.displayName?.[0] || user.email?.[0] || 'U').toUpperCase()}</AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
@@ -276,7 +280,6 @@ const Navbar = () => {
                 <ul className="divide-y divide-gray-200 dark:divide-gray-700">
                   {filtered.map((product) => (
                     <li key={product.id}>
-                      {/* Changed from Link to a div that opens the drawer */}
                       <div
                         onClick={() => handleOpenDrawer(product.id)}
                         className="flex items-center gap-4 p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
