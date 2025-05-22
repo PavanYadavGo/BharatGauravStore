@@ -241,5 +241,5 @@ const Navbar = () => {
     </header>
   );
 };
-//node version
+
 export default Navbar;
