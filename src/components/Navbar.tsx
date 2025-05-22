@@ -4,18 +4,18 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useCart } from '@/app/context/CartContext';
-import { useAuth } from '@/app/context/AuthContext';
+import { useCart } from '../app/context/CartContext';
+import { useAuth } from '../app/context/AuthContext';
 import { FaShoppingCart, FaTrash, FaClipboardList, FaMoon, FaSun, FaUserEdit, FaSearch } from 'react-icons/fa';
 import { FiLogOut } from 'react-icons/fi';
 import { NavigationMenu, NavigationMenuItem, NavigationMenuList, NavigationMenuLink } from '../components/ui/navigation-menu';
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle } from '../components/ui/sheet';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '../components/ui/dropdown-menu';
 import { Popover, PopoverTrigger, PopoverContent } from '../components/ui/popover';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
+import { Button } from '../components/ui/button';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { db } from '../lib/firebase';
 import ProductDrawer from '../components/ProductDrawer'; // Import the ProductDrawer component
 
 const Navbar = () => {
