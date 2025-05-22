@@ -30,7 +30,7 @@ const ImageSlider = () => {
   };
 
   return (
-    <div className="relative w-full h-[300px] overflow-hidden mt-[64px]">
+    <div className="relative w-full h-[300px] overflow-hidden">
       {images.map((img, index) => (
         <div
           key={index}

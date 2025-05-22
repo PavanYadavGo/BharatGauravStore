@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
+import ChatBot from '../components/ChatBot';
 import { Toaster } from "react-hot-toast";
 
 export const metadata = {
@@ -37,6 +38,7 @@ export default function RootLayout({ children }) {
               }}
             />
           </CartProvider>
+          <ChatBot />
         </AuthProvider>
       </body>
     </html>

@@ -115,21 +115,25 @@ export default function FeaturedProducts({ selectedCategory = "All" }: { selecte
               </div>
 
               <div className="p-4 flex flex-col flex-grow">
-                <div className="flex-grow">
-                  <h3 className="text-base font-medium mb-1 line-clamp-2">{product.name}</h3>
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground mb-1">
-                    <FaStar className="text-yellow-400" size={14} />
-                    <span>{product.rating}</span>
-                  </div>
-                  <p className="text-md font-semibold text-rose-600 flex items-center gap-1 mb-4">
-                    <FaRupeeSign size={14} /> {product.price}
-                  </p>
-                </div>
+              <div className="flex-grow">
+  <h3 className="text-base font-medium mb-1 line-clamp-2">{product.name}</h3>
+  
+  <div className="flex items-center justify-between gap-4 mt-1">
+    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+      <FaStar className="text-yellow-400" size={14} />
+      <span>{product.rating}</span>
+    </div>
+    
+    <p className="text-md font-semibold text-rose-600 flex items-center gap-1">
+      <FaRupeeSign size={14} /> {product.price}
+    </p>
+  </div>
+</div>
 
                 <div className="flex flex-col sm:flex-row gap-2 mt-auto">
   <button
     onClick={() => handleAddToCart(product)}
-    className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition duration-300 border ${
+    className={`flex-1 px-1 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-1 transition duration-300 border ${
       animating[product.id]
         ? "bg-black text-white border-black scale-105"
         : "bg-white text-black dark:bg-transparent dark:text-white dark:border-white border-gray-800 hover:bg-black hover:text-white"
@@ -150,7 +154,7 @@ export default function FeaturedProducts({ selectedCategory = "All" }: { selecte
 
   <button
     onClick={() => handleBuyNow(product)}
-    className="flex-1 py-2 px-4 rounded-lg text-sm font-medium flex items-center justify-center gap-2 bg-orange-600 text-white hover:bg-orange-700 transition"
+    className="flex-1 px-1 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-1 bg-orange-600 text-white hover:bg-orange-700 transition"
   >
     <FaRupeeSign size={16} />
     <span>Buy Now</span>
