@@ -92,7 +92,7 @@ const Navbar = () => {
   // New function to handle opening the drawer from search results
   const handleOpenDrawer = (productId: string) => {
     setDrawerProductId(productId); // Set the product ID for the drawer
-    setShowSearch(false);          // Close the search bar
+    setShowSearch(false);           // Close the search bar
   };
 
   const handleLogout = async () => {
@@ -300,7 +300,8 @@ const Navbar = () => {
             )}
             {search.length > 0 && filtered.length === 0 && products.length > 0 && (
               <div className="absolute left-0 right-0 mt-2 p-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow z-50">
-                <p className="text-center text-gray-500 dark:text-gray-400">No products found for "{search}"</p>
+                {/* FIX APPLIED HERE: Replaced " with &quot; */}
+                <p className="text-center text-gray-500 dark:text-gray-400">No products found for &quot;{search}&quot;</p>
               </div>
             )}
             {products.length === 0 && !search && (
