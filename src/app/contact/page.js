@@ -44,13 +44,13 @@ export default function ContactPage() {
       </motion.h1>
 
       <motion.p
-        className="text-lg text-center text-gray-700 dark:text-gray-300 mb-10"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
-      >
-        We'd love to hear from you!
-      </motion.p>
+  className="text-lg text-center text-gray-700 dark:text-gray-300 mb-10"
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ delay: 0.2, duration: 0.5 }}
+>
+  We&apos;d love to hear from you!
+</motion.p>
 
       {/* Success Message */}
       {sent && (
