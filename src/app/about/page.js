@@ -23,7 +23,7 @@ export default function AboutPage() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.6 }}
       >
-        Welcome to <strong>Bharat Gaurav Store</strong> – your trusted destination for quality, value, and a truly Indian shopping experience.
+        Welcome to <strong>Bharat Gaurav Store</strong> &ndash; your trusted destination for quality, value, and a truly Indian shopping experience.
         We are dedicated to bringing you curated products with a focus on sustainability and tradition.
       </motion.p>
 
@@ -75,7 +75,7 @@ export default function AboutPage() {
           <FaUsers className="text-pink-500" /> Our Vision
         </h2>
         <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-          We envision a future where every customer experiences the essence of Bharat through our offerings. Our vision is to be a global ambassador for Indian tradition, craftsmanship, and innovation — making "Made in India" a mark of trust and excellence.
+          We envision a future where every customer experiences the essence of Bharat through our offerings. Our vision is to be a global ambassador for Indian tradition, craftsmanship, and innovation &mdash; making &quot;Made in India&quot; a mark of trust and excellence.
         </p>
       </motion.div>
 
@@ -88,13 +88,13 @@ export default function AboutPage() {
       >
         <h3 className="text-2xl font-semibold mb-4">Join the Bharat Gaurav Movement</h3>
         <p className="mb-6">
-          Support Indian artisans, shop responsibly, and experience the joy of cultural authenticity. Together, let's make a difference.
+          Support Indian artisans, shop responsibly, and experience the joy of cultural authenticity. Together, let&apos;s make a difference.
         </p>
         <a
-          href="/contact"
-          className="inline-block px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white font-semibold rounded-lg transition"
+          href="#"
+          className="inline-block bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-full transition"
         >
-          Contact Us
+          Explore Now
         </a>
       </motion.div>
     </div>

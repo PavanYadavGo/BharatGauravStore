@@ -33,6 +33,7 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen px-6 py-20 bg-gradient-to-br from-blue-50 via-white to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
+      {/* Heading */}
       <motion.h1
         className="text-4xl font-bold text-center text-blue-700 dark:text-blue-400 mb-4"
         initial={{ opacity: 0, y: -20 }}
@@ -51,6 +52,7 @@ export default function ContactPage() {
         We'd love to hear from you!
       </motion.p>
 
+      {/* Success Message */}
       {sent && (
         <motion.div
           className="mb-6 text-center text-green-600 dark:text-green-400 font-semibold"
@@ -129,6 +131,7 @@ export default function ContactPage() {
                   />
                 </div>
 
+                {/* Submit Button */}
                 <button
                   type="submit"
                   className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-500 text-white rounded-xl shadow-lg transition"
@@ -140,30 +143,31 @@ export default function ContactPage() {
           </Card>
         </motion.div>
 
-        {/* Map */}
+        {/* Google Map and Info */}
         <motion.div
+          className="flex flex-col justify-center items-center gap-6"
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <Card className="shadow-2xl rounded-2xl overflow-hidden hover:shadow-blue-200 dark:hover:shadow-blue-800 transition duration-300">
-            <CardHeader>
-              <CardTitle className="text-2xl text-blue-700 dark:text-blue-400">Our Location</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="rounded-xl overflow-hidden h-[450px]">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d1885.2593959350665!2d72.8174915!3d19.4220933!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1716394760195!5m2!1sen!2sin"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                ></iframe>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="w-full h-96 rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700">
+            <iframe
+              title="Bharat Gaurav Store Location"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3769.6673139859195!2d72.85392301490467!3d19.12226385561738!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7b7a8cf1efbc7%3A0x3b040eeb6b8a7cb0!2sBharat%20Gaurav%20Store!5e0!3m2!1sen!2sin!4v1685210705693!5m2!1sen!2sin"
+              width="100%"
+              height="100%"
+              allowFullScreen=""
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="border-0 w-full h-full"
+            ></iframe>
+          </div>
+
+          <div className="text-left text-gray-800 dark:text-gray-200 space-y-2 w-full px-2">
+            <p className="flex items-center gap-2"><FaMapMarkerAlt /> Mumbai, Maharashtra, India</p>
+            <p className="flex items-center gap-2"><FaPhoneAlt /> +91 98765 43210</p>
+            <p className="flex items-center gap-2"><FaEnvelope /> support@bharatgauravstore.com</p>
+          </div>
         </motion.div>
       </div>
     </div>
