@@ -112,7 +112,7 @@ const Navbar = () => {
     <>
       <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur dark:bg-gray-900/80">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-[#ff6740] tracking-tight">
+          <Link href="/" className="text-2xl font-bold text-brand-accent tracking-tight">
             BHARATGAURAV
           </Link>
 
@@ -126,7 +126,7 @@ const Navbar = () => {
               ].map(([label, path]) => (
                 <NavigationMenuItem key={path}>
                   <NavigationMenuLink asChild>
-                    <Link href={path} className="text-gray-700 dark:text-gray-200 hover:text-[#ff6740] transition">
+                    <Link href={path} className="text-gray-700 dark:text-gray-200 hover:text-brand-accent transition">
                       {label}
                     </Link>
                   </NavigationMenuLink>
@@ -135,13 +135,13 @@ const Navbar = () => {
             </NavigationMenuList>
           </NavigationMenu>
 
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon" onClick={() => setShowSearch(true)}>
+          <div className="flex items-center space-x-4 ">
+            <Button className="hover:text-brand-accent" variant="ghost" size="icon" onClick={() => setShowSearch(true)}>
               <FaSearch />
             </Button>
 
             <Sheet>
-              <SheetTrigger className="md:hidden text-gray-700 dark:text-gray-200">☰</SheetTrigger>
+              <SheetTrigger className="md:hidden text-gray-700 dark:text-gray-200 hover:text-brand-accent">☰</SheetTrigger>
               <SheetContent side="left">
                 <SheetHeader>
                   <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
@@ -153,7 +153,7 @@ const Navbar = () => {
                     ['Products', '/products'],
                     ['Contact Us', '/contact'],
                   ].map(([label, path]) => (
-                    <Link key={path} href={path} className="text-lg hover:text-[#ff6740]">{label}</Link>
+                    <Link key={path} href={path} className="text-lg hover:text-brand-accent">{label}</Link>
                   ))}
                   {!user && (
                     <>
@@ -167,7 +167,7 @@ const Navbar = () => {
 
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative">
+                <Button variant="ghost" size="icon" className="relative hover:text-brand-accent">
                   <FaShoppingCart />
                   {cart.length > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full animate-pulse">
@@ -209,7 +209,7 @@ const Navbar = () => {
                 {cart.length > 0 && (
                   <div className="mt-3">
                     <p className="text-right font-semibold text-green-600">Total: ₹{getTotalPrice()}</p>
-                    <Button className="w-full mt-2 bg-[#ff6740]" onClick={handleBuyNow}>Purchase</Button>
+                    <Button className="w-full mt-2 bg-brand-accent" onClick={handleBuyNow}>Purchase</Button>
                   </div>
                 )}
               </PopoverContent>
@@ -242,8 +242,8 @@ const Navbar = () => {
               </DropdownMenu>
             ) : (
               <div className="hidden md:flex space-x-3">
-                <Link href="/signup" className="text-sm hover:text-[#ff6740]">Sign Up</Link>
-                <Link href="/login" className="text-sm hover:text-[#ff6740]">Login</Link>
+                <Link href="/signup" className="text-sm hover:text-brand-accent">Sign Up</Link>
+                <Link href="/login" className="text-sm hover:text-brand-accent">Login</Link>
               </div>
             )}
           </div>
